@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2 id="greeting">Login Testing</h2>
+        <p id="welcome-message"></p>
+        <p><a href="#" id="logout">Logout</a></p>
+    </div>
+
+    <script>
+        // Check if token exists
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = 'login.html'; // Redirect to login if no token
+        } else {
+            fetch('http://85.215.42.150:5000/auth/dashboard', {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Display the user's name in the greeting message
+                    document.getElementById('welcome-message').innerText = `Hello, ${data.user.name}, thank you for logging in!`;
+                } else {
+                    window.location.href = 'login.html';
+                }
+            })
+            .catch(error => {
+                window.location.href = 'login.html';
+            });
+        }
+
+        // Logout functionality
+        document.getElementById('logout').addEventListener('click', function() {
+            localStorage.removeItem('token');  // Remove the token from storage
+            window.location.href = 'login.html';  // Redirect to login page
+        });
+    </script>
+</body>
+</html>

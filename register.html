@@ -3,42 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Register</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h2>Login</h2>
-        <form id="login-form">
+        <h2>Register</h2>
+        <form id="register-form">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+            
             <label for="email">Email Address:</label>
             <input type="email" id="email" name="email" required>
-
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-
-            <button type="submit">Login</button>
+            
+            <button type="submit">Next</button>
         </form>
         <p id="message"></p>
-        <p>Don't have an account? <a href="register.html">Create one</a></p>
-        <p><a href="forgot_password.html">Forgot Password?</a></p>
     </div>
 
     <script>
-        document.getElementById('login-form').addEventListener('submit', function(event) {
+        document.getElementById('register-form').addEventListener('submit', function(event) {
             event.preventDefault();
             const formData = new FormData(this);
-            fetch('http://85.215.42.150:5000/auth/login', {
+            fetch('http://85.215.42.150:5000/auth/registration/check_email', {
                 method: 'POST',
                 body: new URLSearchParams(formData)
             })
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
-                    // Store the JWT token in localStorage
-                    localStorage.setItem('token', data.token);
-                    window.location.href = 'dashboard.html';  // Redirect to dashboard or another page
+                    // Pass the name and email to the next step
+                    const name = formData.get('name');
+                    const email = formData.get('email');
+                    window.location.href = `verify_email.html?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`;
                 } else {
                     document.getElementById('message').innerText = data.message;
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 3000);  // Redirect to login page after 3 seconds
                 }
             })
             .catch(error => {
