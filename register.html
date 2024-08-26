@@ -25,7 +25,7 @@
         document.getElementById('register-form').addEventListener('submit', function(event) {
             event.preventDefault();
             const formData = new FormData(this);
-            fetch('http://85.215.42.150:5000/auth/registration/check_email', {
+            fetch('http://213.165.90.89:5000/auth/register', {
                 method: 'POST',
                 body: new URLSearchParams(formData)
             })
@@ -35,11 +35,11 @@
                     // Pass the name and email to the next step
                     const name = formData.get('name');
                     const email = formData.get('email');
-                    window.location.href = `verify_email.html?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`;
+                    window.location.href = `register_verify.html?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`;
                 } else {
                     document.getElementById('message').innerText = data.message;
                     setTimeout(() => {
-                        window.location.href = 'login.html';
+                        window.location.href = 'index.html';
                     }, 3000);  // Redirect to login page after 3 seconds
                 }
             })

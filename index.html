@@ -27,16 +27,15 @@
         document.getElementById('login-form').addEventListener('submit', function(event) {
             event.preventDefault();
             const formData = new FormData(this);
-            fetch('http://85.215.42.150:5000/auth/login', {
+            fetch('http://213.165.90.89:5000/auth/login', {
                 method: 'POST',
                 body: new URLSearchParams(formData)
             })
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
-                    // Store the JWT token in localStorage
-                    localStorage.setItem('token', data.token);
-                    window.location.href = 'dashboard.html';  // Redirect to dashboard or another page
+                    // Redirect to the login verification page since 2FA is always required
+                    window.location.href = `login_verify.html?email=${encodeURIComponent(formData.get('email'))}`;
                 } else {
                     document.getElementById('message').innerText = data.message;
                 }

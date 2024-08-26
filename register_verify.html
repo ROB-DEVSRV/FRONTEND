@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Email</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Verify Your Email</h2>
+        <p id="email-message"></p>
+        <form id="verify-email-form">
+            <input type="hidden" id="email" name="email">
+            <label for="verification-code">Verification Code:</label>
+            <input type="text" id="verification-code" name="verification-code" required>
+            <button type="submit">Verify</button>
+        </form>
+        
+        <p id="message"></p>
+        <p id="countdown"></p>
+        <p>Server Time: <span id="server-time-display"></span></p>
+        <p>Expiry Time: <span id="expiry-time-display"></span></p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const email = new URLSearchParams(window.location.search).get('email');
+            document.getElementById('email').value = email;
+
+            // Fetch the verification timer information from the server
+            fetch(`http://213.165.90.89:5000/auth/verification_timer?email=${encodeURIComponent(email)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    const expiryTime = data.expiry_time;
+                    const serverTime = data.current_utc_time;
+
+                    document.getElementById('server-time-display').innerText = serverTime;
+                    document.getElementById('expiry-time-display').innerText = expiryTime;
+
+                    // Proceed with countdown and other logic
+                    const expiryDate = new Date(expiryTime);
+                    const serverDate = new Date(serverTime);
+
+                    // Calculate the difference between server time and local time
+                    const timeDifference = serverDate - new Date();
+
+                    const countdownElement = document.getElementById('countdown');
+
+                    function updateCountdown() {
+                        const now = new Date(new Date().getTime() + timeDifference);
+                        const timeLeft = expiryDate - now;
+
+                        if (timeLeft <= 0) {
+                            countdownElement.innerText = "Verification code has expired. Please request a new code.";
+                            countdownElement.style.color = "red";
+                            document.getElementById('verify-email-form').querySelector('button').disabled = true;
+                            setTimeout(() => {
+                                window.location.href = 'register.html';
+                            }, 5000);
+                        } else {
+                            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+                            countdownElement.innerText = `Time left: ${minutes}m ${seconds}s`;
+                        }
+                    }
+
+                    // Start the countdown
+                    updateCountdown();
+                    setInterval(updateCountdown, 1000);
+                } else {
+                    document.getElementById('message').innerText = data.message;
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching verification info:', error);
+                document.getElementById('message').innerText = 'An error occurred. Please try again.';
+            });
+        });
+
+        document.getElementById('verify-email-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            fetch('http://213.165.90.89:5000/auth/register/verify', {
+                method: 'POST',
+                body: new URLSearchParams(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Redirect to the correct set password page
+                    window.location.href = `register_set_password.html?email=${encodeURIComponent(document.getElementById('email').value)}`;
+                } else {
+                    document.getElementById('message').innerText = data.message;
+                }
+            })
+            .catch(error => {
+                document.getElementById('message').innerText = 'An error occurred. Please try again.';
+            });
+        });
+    </script>
+</body>
+</html>

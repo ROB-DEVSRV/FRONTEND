@@ -17,32 +17,39 @@
         // Check if token exists
         const token = localStorage.getItem('token');
         if (!token) {
-            window.location.href = 'login.html'; // Redirect to login if no token
+            console.log('No token found, redirecting to login.');
+            window.location.href = 'index.html'; // Redirect to login if no token
         } else {
-            fetch('http://85.215.42.150:5000/auth/dashboard', {
+            fetch('http://213.165.90.89:5000/auth/dashboard', {
                 method: 'GET',
                 headers: {
                     'Authorization': 'Bearer ' + token
                 }
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
             .then(data => {
+                console.log('Response data:', data);
                 if (data.status === 'success') {
                     // Display the user's name in the greeting message
                     document.getElementById('welcome-message').innerText = `Hello, ${data.user.name}, thank you for logging in!`;
                 } else {
-                    window.location.href = 'login.html';
+                    console.log('Failed to fetch dashboard data, redirecting to login.');
+                    window.location.href = 'index.html';
                 }
             })
             .catch(error => {
-                window.location.href = 'login.html';
+                console.error('Fetch error:', error);
+                window.location.href = 'index.html';
             });
         }
 
         // Logout functionality
         document.getElementById('logout').addEventListener('click', function() {
             localStorage.removeItem('token');  // Remove the token from storage
-            window.location.href = 'login.html';  // Redirect to login page
+            window.location.href = 'index.html';  // Redirect to login page
         });
     </script>
 </body>
