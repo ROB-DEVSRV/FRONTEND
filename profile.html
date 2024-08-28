@@ -88,16 +88,6 @@
             width: 50%;
         }
 
-        #toggle-password {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            cursor: pointer;
-        }
-
         .two-fa-options {
             margin-top: 20px;
             padding-top: 10px;
@@ -163,36 +153,38 @@
     <div class="container">
         <!-- Profile Picture Section -->
         <div class="profile-picture">
-            <img src="#" alt="Profile Picture">
+            <img id="profile-picture" src="#" alt="Profile Picture">
             <button type="button" id="update-picture">Update</button>
         </div>
 
         <h2>User Settings</h2>
         <form id="profile-form">
+            <!-- Name Field with Save Button -->
             <div class="form-group">
                 <label for="name">Name:</label>
-                <input type="text" id="name" value="John Doe">
+                <input type="text" id="name">
                 <button type="button" id="save-name" class="save-button">Save</button>
             </div>
+            
+            <!-- Email Field with Update Button -->
             <div class="form-group">
                 <label for="email">Email:</label>
-                <input type="email" id="email" value="john.doe@example.com" readonly>
-                <button type="button" id="update-email" class="update-button">Update</button>
+                <input type="email" id="email" readonly>
+                <a href="update_email.html">
+                    <button type="button" id="update-email" class="update-button">Update</button>
+                </a>
             </div>
+            
+            <!-- Password Field with Update Button -->
             <div class="form-group">
                 <label for="password">Password:</label>
                 <div class="password-wrapper">
-                    <input type="password" id="password" value="password123" readonly>
-                    <button type="button" id="toggle-password" class="toggle-button">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="18" viewBox="0 0 24 24" width="18" fill="#000000">
-                            <path d="M0 0h24v24H0z" fill="none"/>
-                            <path d="M12 4.5C7.05 4.5 2.73 7.61 1 12c1.73 4.39 6.05 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6.05-7.5-11-7.5zm0 13c-2.49 0-4.5-2.01-4.5-4.5S9.51 8.5 12 8.5s4.5 2.01 4.5 4.5S14.49 17.5 12 17.5z"/>
-                            <circle cx="12" cy="12" r="2.5"/>
-                        </svg>
-                    </button>
+                    <input type="password" id="password" readonly>
                 </div>
-                <span class="password-expiry">Password expires in 15 days</span>
-                <button type="button" id="update-password" class="update-button">Update</button>
+                <span class="password-expiry" id="password-expiry">Password expires in X days</span>
+                <a href="update_password.html">
+                    <button type="button" id="update-password" class="update-button">Update</button>
+                </a>
             </div>
 
             <!-- 2FA Options -->
@@ -201,18 +193,17 @@
                 
                 <div class="form-group">
                     <label>
-                        <input type="radio" name="2fa-method" id="email-2fa-toggle" checked>
+                        <input type="radio" name="2fa-method" id="email-2fa-toggle">
                         Email
                     </label>
-                    <button type="button" id="email-2fa-action" class="update-button">Update</button>
                 </div>
                 
                 <div class="form-group">
                     <label>
-                        <input type="radio" name="2fa-method" id="google-auth-toggle" class="disabled" disabled>
-                        Google Authenticator
+                        <input type="radio" name="2fa-method" id="totp-auth-toggle" class="disabled" disabled>
+                        TOTP Authentication Application
                     </label>
-                    <button type="button" id="google-auth-action" class="add-button">Add Method</button>
+                    <button type="button" id="totp-auth-action" class="add-button">Add Method</button>
                 </div>
                 
                 <div class="form-group">
@@ -220,21 +211,23 @@
                         <input type="radio" name="2fa-method" id="security-key-toggle" class="disabled" disabled>
                         Security Key
                     </label>
-                    <button type="button" id="security-key-action" class="add-button">Add Method</button>
+                    <a href="update_security_key.html">
+                        <button type="button" id="security-key-action" class="add-button">Add Method</button>
+                    </a>
                 </div>
             </div>
 
             <!-- Login Activity Section -->
             <div class="login-activity">
                 <h3>Login Activity</h3>
-                <p>Athens, currently logged in - IP: 192.168.1.100</p>
-                <button type="button" class="save-button">Log Out</button>
+                <p id="login-activity">Loading...</p>
+                <button type="button" class="save-button" id="logout-button">Log Out</button>
             </div>
 
             <!-- Data Export Section -->
             <div class="data-export">
                 <h3>Data Export</h3>
-                <button type="button" class="save-button">Export Data</button>
+                <button type="button" class="save-button" id="export-data-button">Export Data</button>
             </div>
 
             <p><a href="dashboard.html">Back to Dashboard</a></p>
@@ -242,51 +235,150 @@
     </div>
 
     <script>
+        const apiBaseUrl = "http://213.165.90.89:5000/auth/user_settings";
+
+        // Function to fetch user data
+        function fetchUserData() {
+            fetch(apiBaseUrl, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById('name').value = data.user.name;
+                    document.getElementById('email').value = data.user.email;
+                    document.getElementById('password').value = data.user.password;
+                    document.getElementById('password-expiry').textContent = `Password expires in ${data.user.password_expiry_days} days`;
+                    document.getElementById('login-activity').textContent = `${data.user.login_activity.location}, ${data.user.login_activity.status} - IP: ${data.user.login_activity.ip_address}`;
+
+                    const totpAuthButton = document.getElementById('totp-auth-action');
+                    const totpAuthToggle = document.getElementById('totp-auth-toggle');
+
+                    // Set the radio buttons based on the user's current 2FA method
+                    if (data.user['2fa_method'] === 'email') {
+                        document.getElementById('email-2fa-toggle').checked = true;
+                    } else if (data.user['2fa_method'] === 'totp') {
+                        totpAuthToggle.checked = true;
+                        totpAuthToggle.disabled = false;
+                        totpAuthToggle.classList.remove('disabled');
+                    }
+
+                    // Enable or disable the TOTP method based on totp_status
+                    if (data.user['totp_secret']) {
+                        if (data.user['totp_status'] === 'Active') {
+                            totpAuthButton.textContent = 'Update';
+                            totpAuthToggle.disabled = false;
+                            totpAuthToggle.classList.remove('disabled');
+                        } else {
+                            totpAuthButton.textContent = 'Continue Setup';
+                        }
+                    } else {
+                        totpAuthButton.textContent = 'Add Method';
+                    }
+
+                    // Handle the button click for TOTP setup/update
+                    totpAuthButton.addEventListener('click', function () {
+                        if (!data.user['totp_secret']) {
+                            fetch('http://213.165.90.89:5000/auth/totp/generate_new_secret', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(secretData => {
+                                if (secretData.status === 'success') {
+                                    window.location.href = 'manage_totp.html';
+                                } else {
+                                    console.error('Error generating TOTP secret:', secretData.message);
+                                }
+                            })
+                            .catch(error => console.error('Error:', error));
+                        } else {
+                            window.location.href = 'manage_totp.html';
+                        }
+                    });
+
+                    // Add event listeners to 2FA radio buttons to update the user's 2FA method
+                    document.getElementById('email-2fa-toggle').addEventListener('change', function () {
+                        if (this.checked) {
+                            update2FAMethod('email');
+                        }
+                    });
+
+                    document.getElementById('totp-auth-toggle').addEventListener('change', function () {
+                        if (this.checked) {
+                            update2FAMethod('totp');
+                        }
+                    });
+                } else {
+                    console.error('Error fetching user data:', data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Function to update the user's 2FA method
+        function update2FAMethod(method) {
+            fetch(apiBaseUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                },
+                body: JSON.stringify({ '2fa_method': method })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    console.log('2FA method updated successfully!');
+                } else {
+                    console.error('Error updating 2FA method:', data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Fetch user data on page load
+        window.onload = fetchUserData;
+
         // Script to handle the "Save" functionality for the name field
         document.getElementById('save-name').addEventListener('click', function() {
             const nameField = document.getElementById('name');
             const newName = nameField.value;
-            console.log('Saving new name:', newName);
+
+            // Make an API request to update the user's name
+            fetch(apiBaseUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                },
+                body: JSON.stringify({ name: newName })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Name updated successfully!');
+                } else {
+                    console.error('Error updating name:', data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
         });
 
-        // Script to handle the password visibility toggle
-        document.getElementById('toggle-password').addEventListener('click', function() {
-            const passwordField = document.getElementById('password');
-            if (passwordField.type === 'password') {
-                passwordField.type = 'text';
-            } else {
-                passwordField.type = 'password';
-            }
+        // Dummy actions for Logout and Export Data
+        document.getElementById('logout-button').addEventListener('click', function() {
+            alert('Logout button clicked (No backend functionality yet).');
         });
 
-        // 2FA Method Management
-        const googleAuthToggle = document.getElementById('google-auth-toggle');
-        const googleAuthAction = document.getElementById('google-auth-action');
-        const securityKeyToggle = document.getElementById('security-key-toggle');
-        const securityKeyAction = document.getElementById('security-key-action');
-
-        googleAuthAction.addEventListener('click', function() {
-            if (googleAuthToggle.disabled) {
-                googleAuthToggle.disabled = false;
-                googleAuthToggle.classList.remove('disabled');
-                googleAuthToggle.checked = true;
-                googleAuthAction.textContent = 'Update';
-                document.getElementById('email-2fa-toggle').checked = false;
-            } else {
-                console.log('Updating Google Authenticator method...');
-            }
-        });
-
-        securityKeyAction.addEventListener('click', function() {
-            if (securityKeyToggle.disabled) {
-                securityKeyToggle.disabled = false;
-                securityKeyToggle.classList.remove('disabled');
-                securityKeyToggle.checked = true;
-                securityKeyAction.textContent = 'Update';
-                document.getElementById('email-2fa-toggle').checked = false;
-            } else {
-                console.log('Updating Security Key method...');
-            }
+        document.getElementById('export-data-button').addEventListener('click', function() {
+            alert('Export Data button clicked (No backend functionality yet).');
         });
     </script>
 </body>

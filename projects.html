@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>Projects</title>
     <style>
         /* General reset for margin and padding */
         * {
@@ -78,10 +78,27 @@
             margin-bottom: 15px;
         }
 
+        .main-content button {
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            margin-top: 10px;
+            margin-right: 10px; /* Add space between buttons */
+        }
+
         .placeholder {
             font-size: 14px;
             color: #555;
             margin-top: 20px;
+        }
+
+        .temporary-message {
+            color: red;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -91,8 +108,8 @@
         <div class="sidebar">
             <div>
                 <h2 id="greeting">Hello, {name}</h2>
-                <a href="#" id="profile-link">Profile Settings</a>
-                <a href="#" id="projects-link">Projects</a>
+                <a href="profile.html" id="profile-link">Profile Settings</a>
+                <a href="projects.html" id="projects-link">Projects</a>
                 <p id="admin-section" style="display: none;">
                     <a href="admin.html" class="admin-link">Root Admin</a>
                 </p>
@@ -102,9 +119,14 @@
 
         <!-- Main Content Area -->
         <div class="main-content">
-            <h3>Welcome to Your Dashboard</h3>
-            <p id="welcome-message">Hello, {name}, thank you for logging in!</p>
-            <p class="placeholder">This area will display dynamic content based on your selections from the left sidebar. Currently, this is a placeholder to be expanded upon later in development.</p>
+            <h3>Your Projects</h3>
+            <p id="welcome-message">Manage your projects from this page.</p>
+            <!-- "Open Project Account" button -->
+            <button id="initiate-project">Open Project Account</button>
+            <p id="project-number" class="placeholder"></p>
+            <!-- "Add Project" button below the project account number -->
+            <button id="add-project">Add Project</button>
+            <p id="temporary-message" class="temporary-message" style="display: none;"></p>
         </div>
     </div>
 
@@ -115,29 +137,29 @@
             console.log('No token found, redirecting to login.');
             window.location.href = 'index.html'; // Redirect to login if no token
         } else {
-            fetch('http://213.165.90.89:5000/auth/dashboard', {
+            fetch('http://213.165.90.89:5000/auth/projects', {
                 method: 'GET',
                 headers: {
                     'Authorization': 'Bearer ' + token
                 }
             })
-            .then(response => {
-                console.log('Response status:', response.status);
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
                 console.log('Response data:', data);
                 if (data.status === 'success') {
-                    // Display the user's name in the greeting message
                     document.getElementById('greeting').innerText = `Hello, ${data.user.name}`;
-                    document.getElementById('welcome-message').innerText = `Hello, ${data.user.name}, thank you for logging in!`;
+                    document.getElementById('welcome-message').innerText = `Manage your projects, ${data.user.name}.`;
+
+                    if (data.user.projects_token) {
+                        document.getElementById('project-number').innerText = `Your projects account number is ${data.user.projects_token}.`;
+                    }
 
                     // Check if the user is an admin and display the admin section
                     if (data.user.admin === 'root') {
                         document.getElementById('admin-section').style.display = 'block';
                     }
                 } else {
-                    console.log('Failed to fetch dashboard data, redirecting to login.');
+                    console.log('Failed to fetch projects data, redirecting to login.');
                     window.location.href = 'index.html';
                 }
             })
@@ -153,6 +175,40 @@
             window.location.href = 'index.html';  // Redirect to login page
         });
 
+        // Handle opening a new project account
+        document.getElementById('initiate-project').addEventListener('click', function() {
+            fetch('http://213.165.90.89:5000/auth/projects', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById('project-number').innerText = `Your projects account number is ${data.projects_token}.`;
+                } else {
+                    const tempMessage = document.getElementById('temporary-message');
+                    tempMessage.innerText = 'Already generated, cannot be changed.';
+                    tempMessage.style.display = 'block';
+
+                    // Hide the message after 3 seconds
+                    setTimeout(() => {
+                        tempMessage.style.display = 'none';
+                    }, 3000);
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+            });
+        });
+
+        // Handle adding a new project
+        document.getElementById('add-project').addEventListener('click', function() {
+            alert('Add Project functionality will be implemented here.');
+            // Future implementation: This is where you'd handle the logic for adding a new project.
+        });
+
         // Profile link functionality
         document.getElementById('profile-link').addEventListener('click', function() {
             window.location.href = 'profile.html';  // Redirect to profile page
@@ -160,7 +216,7 @@
 
         // Projects link functionality
         document.getElementById('projects-link').addEventListener('click', function() {
-            window.location.href = 'projects.html';  // Redirect to projects page
+            window.location.href = 'projects.html';  // Reload this page if clicked
         });
     </script>
 </body>

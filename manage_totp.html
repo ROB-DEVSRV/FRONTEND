@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage TOTP</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        h2, h3 {
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .qr-code-section {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .qr-code-section #qrcode {
+            margin: 20px 0;
+            transform: scale(0.6); /* Reduce the QR code size to 60% */
+            display: inline-block;
+        }
+
+        .info-text {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="password"] {
+            width: 60%;
+            padding: 5px;
+            font-size: 14px;
+        }
+
+        .form-group button {
+            padding: 5px 10px;
+            font-size: 14px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            margin-left: 10px;
+        }
+
+        .reset-disable-section {
+            margin-top: 30px;
+            padding-top: 10px;
+            border-top: 1px solid #ccc;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .reset-disable-section button {
+            padding: 5px 10px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            width: 48%; /* Ensures buttons are of equal size and fill the width */
+        }
+
+        .reset-disable-section #reset-totp {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .reset-disable-section #disable-totp {
+            background-color: #dc3545; /* Red button for disabling TOTP */
+            color: white;
+        }
+
+        p {
+            margin-top: 20px;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+
+        .info {
+            color: blue;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Manage Two-Factor Authentication (TOTP)</h2>
+
+        <!-- QR Code Section -->
+        <div class="qr-code-section" id="qr-code-section">
+            <p class="info-text">Scan the QR code below with your TOTP app (e.g., Google Auth, Okta, Yubikey).</p>
+            <div id="qrcode"></div>
+            <p class="info-text">Or manually enter this key: <strong id="totp-key">Loading...</strong></p>
+        </div>
+
+        <!-- Verification Section -->
+        <form id="totp-form">
+            <div class="form-group">
+                <label id="totp-label" for="totp-code">Enter the code from your app:</label>
+                <input type="text" id="totp-code" placeholder="123456">
+                <span id="code-feedback"></span>
+            </div>
+            <div class="form-group">
+                <label for="password">Enter your password:</label>
+                <input type="password" id="password" placeholder="Your password">
+                <button type="button" id="verify-totp" class="save-button">Submit</button>
+            </div>
+        </form>
+
+        <!-- Reset / Disable Section -->
+        <div class="reset-disable-section">
+            <button type="button" id="reset-totp">Reset TOTP</button>
+            <button type="button" id="disable-totp">Disable TOTP</button>
+        </div>
+
+        <p><a href="profile.html">Back to Profile</a></p>
+    </div>
+
+    <script src="qrcode.min.js"></script>
+    <script>
+        // Variable to keep track of the current action (e.g., "reset" or "disable")
+        let currentAction = null;
+
+        // Function to clear the existing QR code before generating a new one
+        function clearQrCode() {
+            const qrCodeElement = document.getElementById('qrcode');
+            qrCodeElement.innerHTML = ''; // Clear the existing QR code
+        }
+
+        // Fetch the TOTP secret from the server via user_settings endpoint
+        function fetchTotpSecret() {
+            clearQrCode(); // Clear the old QR code
+            setTimeout(() => {
+                fetch('http://213.165.90.89:5000/auth/user_settings', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('token') // Ensure token is in localStorage
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        const totpSecret = data.user.totp_secret || 'TOTP secret not set';
+
+                        // Set the TOTP key to the page
+                        document.getElementById('totp-key').textContent = totpSecret;
+
+                        // Generate the QR code based on the fetched TOTP key
+                        const uri = `otpauth://totp/AI%20Platform:${data.user.email}?secret=${totpSecret}&issuer=AI%20Platform`;
+                        new QRCode(document.getElementById("qrcode"), uri);
+                    } else {
+                        console.error('Failed to fetch TOTP secret:', data.message);
+                        document.getElementById('totp-key').textContent = "Error loading key";
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching TOTP secret:', error);
+                    document.getElementById('totp-key').textContent = "Error loading key";
+                });
+            }, 200); // Add a slight delay before generating the new QR code
+        }
+
+        // Fetch the TOTP secret on page load
+        window.onload = fetchTotpSecret;
+
+        // Handle the TOTP and password verification
+        document.getElementById('verify-totp').addEventListener('click', function() {
+            const totpCode = document.getElementById('totp-code').value;
+            const password = document.getElementById('password').value;
+            const feedback = document.getElementById('code-feedback');
+
+            // Bypass TOTP code validation if the current action is "reset" or "disable"
+            if (currentAction === 'reset') {
+                // Proceed with reset TOTP action
+                performTotpReset(password, feedback);
+            } else if (currentAction === 'disable') {
+                // Proceed with disable TOTP action
+                performTotpDisable(password, feedback);
+            } else {
+                // Normal TOTP verification
+                if (!totpCode || !password) {
+                    feedback.textContent = "✘ Please enter both TOTP code and password.";
+                    feedback.className = "error";
+                    return;
+                }
+
+                fetch('http://213.165.90.89:5000/auth/totp/confirm_code', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('token') 
+                    },
+                    body: JSON.stringify({ totp_code: totpCode, password: password })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        feedback.textContent = "✔ TOTP confirmed and enabled";
+                        feedback.className = "success";
+                    } else {
+                        feedback.textContent = "✘ " + data.message;
+                        feedback.className = "error";
+                    }
+                })
+                .catch(error => {
+                    feedback.textContent = "✘ Error processing request";
+                    feedback.className = "error";
+                    console.error('Error:', error);
+                });
+            }
+        });
+
+        // Function to update UI for reset or disable actions
+        function prepareForAction(actionType) {
+            const totpLabel = document.getElementById('totp-label');
+            const totpInput = document.getElementById('totp-code');
+            const feedback = document.getElementById('code-feedback');
+
+            // Set the current action
+            currentAction = actionType;
+
+            // Modify the label and input behavior
+            if (actionType === 'reset') {
+                totpLabel.textContent = "Code not required for Reset";
+                totpInput.value = "Not required";
+                feedback.textContent = "Please enter your password to reset TOTP.";
+                feedback.className = "info";
+            } else if (actionType === 'disable') {
+                totpLabel.textContent = "Code not required for Disable";
+                totpInput.value = "Not required";
+                feedback.textContent = "Please enter your password to disable TOTP.";
+                feedback.className = "info";
+            }
+
+            // Make the TOTP input readonly
+            totpInput.readOnly = true;
+        }
+
+        // Handle the TOTP reset action
+        function performTotpReset(password, feedback) {
+            if (!password) {
+                feedback.textContent = "✘ Please enter your password to reset TOTP.";
+                feedback.className = "error";
+                return;
+            }
+
+            fetch('http://213.165.90.89:5000/auth/totp/generate_new_secret', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                },
+                body: JSON.stringify({ password: password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    feedback.textContent = "✔ TOTP has been reset. Scan the new QR code.";
+                    feedback.className = "success";
+                    setTimeout(() => {
+                        location.reload(); // Refresh the page after successful reset
+                    }, 1000); // Add a delay before reloading the page
+                } else {
+                    feedback.textContent = "✘ " + data.message;
+                    feedback.className = "error";
+                }
+            })
+            .catch(error => {
+                feedback.textContent = "✘ Error processing request";
+                feedback.className = "error";
+                console.error('Error:', error);
+            });
+        }
+
+        // Handle the TOTP disable action
+        function performTotpDisable(password, feedback) {
+            if (!password) {
+                feedback.textContent = "✘ Please enter your password to disable TOTP.";
+                feedback.className = "error";
+                return;
+            }
+
+            fetch('http://213.165.90.89:5000/auth/totp/disable', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                },
+                body: JSON.stringify({ password: password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    feedback.textContent = "✔ TOTP has been disabled.";
+                    feedback.className = "success";
+                    setTimeout(() => {
+                        window.location.href = 'profile.html'; // Redirect to profile page after disabling
+                    }, 1000);
+                } else {
+                    feedback.textContent = "✘ " + data.message;
+                    feedback.className = "error";
+                }
+            })
+            .catch(error => {
+                feedback.textContent = "✘ Error processing request";
+                feedback.className = "error";
+                console.error('Error:', error);
+            });
+        }
+
+        // Handle the TOTP reset action
+        document.getElementById('reset-totp').addEventListener('click', function() {
+            prepareForAction('reset');
+        });
+
+        // Handle the TOTP disable action
+        document.getElementById('disable-totp').addEventListener('click', function() {
+            prepareForAction('disable');
+        });
+    </script>
+</body>
+</html>
