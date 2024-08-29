@@ -100,6 +100,22 @@
             color: red;
             font-weight: bold;
         }
+
+        .project-list {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        .project-list li {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            font-weight: bold;
+            color: #333;
+        }
     </style>
 </head>
 <body>
@@ -120,19 +136,22 @@
         <!-- Main Content Area -->
         <div class="main-content">
             <h3>Your Projects</h3>
-            <p id="welcome-message">Manage your projects from this page.</p>
+            <p id="welcome-message">Manage your projects, Rob.</p>
             <!-- "Open Project Account" button -->
             <button id="initiate-project">Open Project Account</button>
             <p id="project-number" class="placeholder"></p>
-            <!-- "Add Project" button below the project account number -->
+            <!-- "Add Project" button -->
             <button id="add-project">Add Project</button>
-            <p id="temporary-message" class="temporary-message" style="display: none;"></p>
+            <!-- Project list -->
+            <ul id="projects-list" class="project-list"></ul>
         </div>
     </div>
 
     <script>
-        // Check if token exists
+        // Retrieve token from localStorage
         const token = localStorage.getItem('token');
+
+        // Check if token exists
         if (!token) {
             console.log('No token found, redirecting to login.');
             window.location.href = 'index.html'; // Redirect to login if no token
@@ -145,19 +164,37 @@
             })
             .then(response => response.json())
             .then(data => {
-                console.log('Response data:', data);
                 if (data.status === 'success') {
                     document.getElementById('greeting').innerText = `Hello, ${data.user.name}`;
                     document.getElementById('welcome-message').innerText = `Manage your projects, ${data.user.name}.`;
 
                     if (data.user.projects_token) {
                         document.getElementById('project-number').innerText = `Your projects account number is ${data.user.projects_token}.`;
+                    } else {
+                        document.getElementById('project-number').innerText = `You do not have a projects account yet. Click "Open Project Account" to create one.`;
                     }
 
                     // Check if the user is an admin and display the admin section
                     if (data.user.admin === 'root') {
                         document.getElementById('admin-section').style.display = 'block';
                     }
+
+                    // Load the user's projects
+                    const projectsList = document.getElementById('projects-list');
+                    projectsList.innerHTML = ''; // Clear existing content
+
+                    if (data.projects.length > 0) {
+                        data.projects.forEach(project => {
+                            const projectItem = document.createElement('li');
+                            projectItem.innerText = `Project Number: ${project.project_id}`;
+                            projectsList.appendChild(projectItem);
+                        });
+                    } else {
+                        const noProjectsMessage = document.createElement('p');
+                        noProjectsMessage.innerText = 'No projects found. You need to open a project account to start creating projects.';
+                        projectsList.appendChild(noProjectsMessage);
+                    }
+
                 } else {
                     console.log('Failed to fetch projects data, redirecting to login.');
                     window.location.href = 'index.html';
@@ -169,15 +206,8 @@
             });
         }
 
-        // Logout functionality
-        document.getElementById('logout').addEventListener('click', function() {
-            localStorage.removeItem('token');  // Remove the token from storage
-            window.location.href = 'index.html';  // Redirect to login page
-        });
-
-        // Handle opening a new project account
         document.getElementById('initiate-project').addEventListener('click', function() {
-            fetch('http://213.165.90.89:5000/auth/projects', {
+            fetch('http://213.165.90.89:5000/auth/projects/initiate', {
                 method: 'POST',
                 headers: {
                     'Authorization': 'Bearer ' + token
@@ -187,26 +217,48 @@
             .then(data => {
                 if (data.status === 'success') {
                     document.getElementById('project-number').innerText = `Your projects account number is ${data.projects_token}.`;
+                    alert('Project account created successfully!');
+                    window.location.reload();  // Reload the page to fetch projects
                 } else {
-                    const tempMessage = document.getElementById('temporary-message');
-                    tempMessage.innerText = 'Already generated, cannot be changed.';
-                    tempMessage.style.display = 'block';
-
-                    // Hide the message after 3 seconds
-                    setTimeout(() => {
-                        tempMessage.style.display = 'none';
-                    }, 3000);
+                    alert('Error: ' + data.message);
                 }
             })
             .catch(error => {
                 console.error('Fetch error:', error);
+                alert('An error occurred while creating the project account.');
             });
         });
 
-        // Handle adding a new project
         document.getElementById('add-project').addEventListener('click', function() {
-            alert('Add Project functionality will be implemented here.');
-            // Future implementation: This is where you'd handle the logic for adding a new project.
+            fetch('http://213.165.90.89:5000/auth/projects/add', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Add the new project to the list dynamically
+                    const projectsList = document.getElementById('projects-list');
+                    const projectItem = document.createElement('li');
+                    projectItem.innerText = `Project Number: ${data.project_id}`;
+                    projectsList.appendChild(projectItem);
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                alert('An error occurred while creating the project.');
+            });
+        });
+
+        // Logout functionality
+        document.getElementById('logout').addEventListener('click', function() {
+            localStorage.removeItem('token');  // Remove the token from storage
+            window.location.href = 'index.html';  // Redirect to login page
         });
 
         // Profile link functionality
