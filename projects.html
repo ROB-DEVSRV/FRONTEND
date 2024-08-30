@@ -115,6 +115,15 @@
             background-color: #f9f9f9;
             font-weight: bold;
             color: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .project-list li button {
+            margin-left: 10px;
+            padding: 5px 10px;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -136,7 +145,7 @@
         <!-- Main Content Area -->
         <div class="main-content">
             <h3>Your Projects</h3>
-            <p id="welcome-message">Manage your projects, Rob.</p>
+            <p id="welcome-message">Manage your projects.</p>
             <!-- "Open Project Account" button -->
             <button id="initiate-project">Open Project Account</button>
             <p id="project-number" class="placeholder"></p>
@@ -186,7 +195,23 @@
                     if (data.projects.length > 0) {
                         data.projects.forEach(project => {
                             const projectItem = document.createElement('li');
-                            projectItem.innerText = `Project Number: ${project.project_id}`;
+
+                            // Check if the project has a name and display it with the project number
+                            if (project.project_name) {
+                                projectItem.innerText = `Project Number: ${project.project_id} - Project Name: ${project.project_name}`;
+                            } else {
+                                projectItem.innerText = `Project Number: ${project.project_id}`;
+                            }
+
+                            // Create the edit button
+                            const editButton = document.createElement('button');
+                            editButton.innerText = 'Edit';
+                            editButton.addEventListener('click', function() {
+                                // Redirect to the edit page with the project_id as a query parameter
+                                window.location.href = `edit_project.html?project_id=${project.project_id}`;
+                            });
+
+                            projectItem.appendChild(editButton);
                             projectsList.appendChild(projectItem);
                         });
                     } else {
@@ -243,7 +268,23 @@
                     // Add the new project to the list dynamically
                     const projectsList = document.getElementById('projects-list');
                     const projectItem = document.createElement('li');
-                    projectItem.innerText = `Project Number: ${data.project_id}`;
+
+                    // Display the project number and name if available
+                    if (data.project_name) {
+                        projectItem.innerText = `Project Number: ${data.project_id} - Project Name: ${data.project_name}`;
+                    } else {
+                        projectItem.innerText = `Project Number: ${data.project_id}`;
+                    }
+
+                    // Create the edit button
+                    const editButton = document.createElement('button');
+                    editButton.innerText = 'Edit';
+                    editButton.addEventListener('click', function() {
+                        // Redirect to the edit page with the project_id as a query parameter
+                        window.location.href = `edit_project.html?project_id=${data.project_id}`;
+                    });
+
+                    projectItem.appendChild(editButton);
                     projectsList.appendChild(projectItem);
                 } else {
                     alert('Error: ' + data.message);
