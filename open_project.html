@@ -24,7 +24,7 @@
         .container {
             display: flex;
             width: 100%;
-            max-width: 1440px; /* MacBook Pro viewport width */
+            max-width: 1440px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -74,9 +74,104 @@
             margin-bottom: 20px;
         }
 
-        .main-content p {
-            margin-bottom: 15px;
+        /* Tab styles */
+        .tab {
+            display: flex;
+            cursor: pointer;
+            background-color: #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .tab button {
+            background-color: inherit;
+            flex: 1;
+            padding: 14px 16px;
+            border: none;
+            outline: none;
+            transition: background-color 0.3s;
+            font-size: 18px;
             font-weight: bold;
+        }
+
+        .tab button:hover {
+            background-color: #bbb;
+        }
+
+        .tab button.active {
+            background-color: #007bff;
+            color: white;
+        }
+
+        /* Tab content styles */
+        .tab-content {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Flex container for input section */
+        .input-container {
+            display: flex;
+        }
+
+        /* Scrollable table for images */
+        .scrollable-table {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            width: 30%;
+            margin-right: 20px; /* Spacing between table and preview */
+        }
+
+        .scrollable-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .scrollable-table th, .scrollable-table td {
+            padding: 8px;
+            border-bottom: 1px solid #ccc;
+            text-align: left;
+        }
+
+        .scrollable-table th {
+            background-color: #f4f4f4;
+            position: sticky;
+            top: 0;
+        }
+
+        /* Image preview */
+        #imagePreview {
+            border: 2px solid #ccc;
+            padding: 10px;
+            display: none;
+            width: 60%; /* Set width for the preview */
+            max-height: 300px;
+            overflow-y: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #previewImage {
+            max-width: 100%;
+            max-height: 100%;
+            height: auto;
+        }
+
+        /* Button styles */
+        .button-container {
+            display: flex;
+            justify-content: flex-start;
+            margin-top: 20px;
         }
 
         .main-content button {
@@ -87,31 +182,11 @@
             color: white;
             border: none;
             border-radius: 4px;
-            margin-top: 10px;
+            margin-right: 10px;
         }
 
         .main-content .back-button {
             background-color: grey;
-            margin-right: 10px;
-        }
-
-        /* Sections for input, processing, and output */
-        .section {
-            text-align: center;
-            width: 30%;
-            margin-bottom: 20px;
-        }
-
-        #output {
-            border: 2px solid #ccc;
-            padding: 10px;
-            min-height: 50px;
-        }
-
-        #chatgpt-icon {
-            width: 150px;
-            height: auto;
-            margin-top: 20px;
         }
     </style>
 </head>
@@ -138,34 +213,60 @@
             <p id="project-id">Project ID: </p>
             <p id="project-name">Project Name: </p> <!-- Added project name field -->
 
-            <!-- Input, Processing, and Output Sections -->
-            <div style="display: flex; justify-content: space-between;">
-                <!-- Input Section -->
-                <div class="section">
-                    <h4>Input</h4>
-                    <input type="file" id="imageUpload" accept="image/*">
-                    <br><br>
-                    <button id="removeImage">Remove Image</button>
-                    <div id="inputImageContainer"></div>
+            <!-- Tabbed Interface -->
+            <div class="tab">
+                <button class="tablinks active" onclick="openTab(event, 'Input')">Input</button>
+                <button class="tablinks" onclick="openTab(event, 'Processing')">AI Engine</button>
+                <button class="tablinks" onclick="openTab(event, 'Output')">Output</button>
+            </div>
+
+            <!-- Tab content -->
+            <div id="Input" class="tab-content active">
+                <h4>Input</h4>
+                <input type="file" id="imageUpload" accept="image/*" multiple> <!-- Enable multiple file selection -->
+                <br><br>
+                <div class="button-container">
+                    <button id="removeAllImages">Remove All Images</button>
                 </div>
 
-                <!-- Processing Section -->
-                <div class="section">
-                    <h4>Processing</h4>
-                    <img src="/img/chatgpt_icon.png" alt="AI Processing" id="chatgpt-icon">
-                </div>
-
-                <!-- Output Section -->
-                <div class="section">
-                    <h4>Output</h4>
-                    <div id="output">
-                        <p id="outputText">AI's analysis will be shown here.</p>
+                <!-- Flex container for table and preview -->
+                <div class="input-container">
+                    <!-- Scrollable table for images -->
+                    <div class="scrollable-table">
+                        <table id="imageTable">
+                            <thead>
+                                <tr>
+                                    <th>Filename</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Dynamically filled with JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Preview Area -->
+                    <div id="imagePreview">
+                        <img id="previewImage" src="" alt="Image Preview">
                     </div>
                 </div>
             </div>
 
+            <div id="Processing" class="tab-content">
+                <h4>Processing</h4>
+                <img src="/img/chatgpt_icon.png" alt="AI Processing" id="chatgpt-icon">
+            </div>
+
+            <div id="Output" class="tab-content">
+                <h4>Output</h4>
+                <div id="output">
+                    <p id="outputText">AI's analysis will be shown here.</p>
+                </div>
+            </div>
+
             <!-- Button Section -->
-            <div style="display: flex; justify-content: flex-start;">
+            <div class="button-container">
                 <button type="button" class="back-button">Back</button>
                 <button type="submit">Save</button>
             </div>
@@ -173,6 +274,24 @@
     </div>
 
     <script>
+        // Function to handle tab switching
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+
+        // Default open tab
+        document.getElementById("Input").style.display = "block";
+
         // Retrieve token from localStorage
         const token = localStorage.getItem('token');
 
@@ -225,60 +344,77 @@
             });
         }
 
-        // Image upload and processing simulation
+        // Function to update the table with images from local storage
+        function updateImageTable() {
+            const imageTableBody = document.querySelector('#imageTable tbody');
+            imageTableBody.innerHTML = ''; // Clear existing rows
+
+            const storedImages = JSON.parse(localStorage.getItem('uploadedImages')) || [];
+
+            storedImages.forEach((image, index) => {
+                const row = document.createElement('tr');
+                
+                const filenameCell = document.createElement('td');
+                filenameCell.style.cursor = 'pointer';
+                filenameCell.textContent = image.name;
+                filenameCell.addEventListener('click', () => previewImage(index));
+                
+                const actionCell = document.createElement('td');
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.addEventListener('click', () => deleteImage(index));
+                
+                actionCell.appendChild(deleteButton);
+                row.appendChild(filenameCell);
+                row.appendChild(actionCell);
+                imageTableBody.appendChild(row);
+            });
+        }
+
+        // Function to handle file upload
         document.getElementById('imageUpload').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
+            const files = event.target.files;
+            const storedImages = JSON.parse(localStorage.getItem('uploadedImages')) || [];
+
+            Array.from(files).forEach(file => {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const imgElement = document.createElement('img');
-                    imgElement.src = e.target.result;
-                    imgElement.style.maxWidth = '100%';
-                    imgElement.style.height = 'auto';
-                    const container = document.getElementById('inputImageContainer');
-                    container.innerHTML = ''; // Clear any previous image
-                    container.appendChild(imgElement);
-                    
-                    // Simulate AI analysis by setting output text
-                    if (file.name.toLowerCase().includes('cat')) {
-                        document.getElementById('outputText').textContent = 'AI says: Cat';
-                    } else if (file.name.toLowerCase().includes('donkey')) {
-                        document.getElementById('outputText').textContent = 'AI says: Donkey';
-                    } else {
-                        document.getElementById('outputText').textContent = 'AI says: Unknown';
-                    }
+                    storedImages.push({ name: file.name, data: e.target.result });
+                    localStorage.setItem('uploadedImages', JSON.stringify(storedImages));
+                    updateImageTable();
                 }
                 reader.readAsDataURL(file);
+            });
+        });
+
+        // Function to preview the image
+        function previewImage(index) {
+            const storedImages = JSON.parse(localStorage.getItem('uploadedImages')) || [];
+            const image = storedImages[index];
+            if (image) {
+                document.getElementById('previewImage').src = image.data;
+                document.getElementById('imagePreview').style.display = 'block';
             }
+        }
+
+        // Function to delete an image
+        function deleteImage(index) {
+            let storedImages = JSON.parse(localStorage.getItem('uploadedImages')) || [];
+            storedImages.splice(index, 1); // Remove the image at the specified index
+            localStorage.setItem('uploadedImages', JSON.stringify(storedImages));
+            updateImageTable();
+            document.getElementById('imagePreview').style.display = 'none';
+        }
+
+        // Function to remove all images
+        document.getElementById('removeAllImages').addEventListener('click', function() {
+            localStorage.removeItem('uploadedImages');
+            updateImageTable();
+            document.getElementById('imagePreview').style.display = 'none';
         });
 
-        // Remove image functionality
-        document.getElementById('removeImage').addEventListener('click', function() {
-            document.getElementById('inputImageContainer').innerHTML = '';
-            document.getElementById('outputText').textContent = 'AI\'s analysis will be shown here.';
-        });
-
-        // Back button functionality
-        document.querySelector('.back-button').addEventListener('click', function() {
-            window.location.href = 'projects.html'; // Redirect to projects page
-        });
-
-        // Logout functionality
-        document.getElementById('logout').addEventListener('click', function() {
-            localStorage.removeItem('token');  // Remove the token from storage
-            localStorage.removeItem('projects_token');  // Remove the projects_token from storage
-            window.location.href = 'index.html';  // Redirect to login page
-        });
-
-        // Profile link functionality
-        document.getElementById('profile-link').addEventListener('click', function() {
-            window.location.href = 'profile.html';  // Redirect to profile page
-        });
-
-        // Projects link functionality
-        document.getElementById('projects-link').addEventListener('click', function() {
-            window.location.href = 'projects.html';  // Redirect to projects page
-        });
+        // Initial table update on page load
+        document.addEventListener('DOMContentLoaded', updateImageTable);
     </script>
 </body>
 </html>
