@@ -113,16 +113,36 @@
             border: 1px solid #ccc;
             border-radius: 4px;
             background-color: #f9f9f9;
-            font-weight: bold;
-            color: #333;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            font-weight: bold;
+            color: #333;
         }
 
-        .project-list li button {
-            margin-left: 10px;
-            padding: 5px 10px;
+        .project-info {
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+
+        .project-name {
+            font-weight: bold;
+            margin-right: 20px; /* Add space between project name and number */
+        }
+
+        .project-number {
+            font-weight: normal;
+            color: #555;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .button-group button {
+            padding: 5px 15px;
             font-size: 14px;
         }
     </style>
@@ -196,12 +216,25 @@
                         data.projects.forEach(project => {
                             const projectItem = document.createElement('li');
 
-                            // Check if the project has a name and display it with the project number
-                            if (project.project_name) {
-                                projectItem.innerText = `Project Number: ${project.project_id} - Project Name: ${project.project_name}`;
-                            } else {
-                                projectItem.innerText = `Project Number: ${project.project_id}`;
-                            }
+                            // Project info section (name and number)
+                            const projectInfo = document.createElement('div');
+                            projectInfo.className = 'project-info';
+
+                            const projectName = document.createElement('span');
+                            projectName.className = 'project-name';
+                            projectName.innerText = `Project Name: ${project.project_name || 'Unnamed Project'}`;
+
+                            const projectNumber = document.createElement('span');
+                            projectNumber.className = 'project-number';
+                            projectNumber.innerText = `Project Number: ${project.project_id}`;
+
+                            projectInfo.appendChild(projectName);
+                            projectInfo.appendChild(projectNumber);
+                            projectItem.appendChild(projectInfo);
+
+                            // Button group section
+                            const buttonGroup = document.createElement('div');
+                            buttonGroup.className = 'button-group';
 
                             // Create the edit button
                             const editButton = document.createElement('button');
@@ -211,7 +244,18 @@
                                 window.location.href = `edit_project.html?project_id=${project.project_id}`;
                             });
 
-                            projectItem.appendChild(editButton);
+                            // Create the open button
+                            const openButton = document.createElement('button');
+                            openButton.innerText = 'Open';
+                            openButton.addEventListener('click', function() {
+                                // Redirect to the open page with the project_id as a query parameter
+                                window.location.href = `open_project.html?project_id=${project.project_id}`;
+                            });
+
+                            buttonGroup.appendChild(editButton);
+                            buttonGroup.appendChild(openButton);
+                            projectItem.appendChild(buttonGroup);
+
                             projectsList.appendChild(projectItem);
                         });
                     } else {
@@ -269,12 +313,25 @@
                     const projectsList = document.getElementById('projects-list');
                     const projectItem = document.createElement('li');
 
-                    // Display the project number and name if available
-                    if (data.project_name) {
-                        projectItem.innerText = `Project Number: ${data.project_id} - Project Name: ${data.project_name}`;
-                    } else {
-                        projectItem.innerText = `Project Number: ${data.project_id}`;
-                    }
+                    // Project info section (name and number)
+                    const projectInfo = document.createElement('div');
+                    projectInfo.className = 'project-info';
+
+                    const projectName = document.createElement('span');
+                    projectName.className = 'project-name';
+                    projectName.innerText = `Project Name: ${data.project_name || 'Unnamed Project'}`;
+
+                    const projectNumber = document.createElement('span');
+                    projectNumber.className = 'project-number';
+                    projectNumber.innerText = `Project Number: ${data.project_id}`;
+
+                    projectInfo.appendChild(projectName);
+                    projectInfo.appendChild(projectNumber);
+                    projectItem.appendChild(projectInfo);
+
+                    // Button group section
+                    const buttonGroup = document.createElement('div');
+                    buttonGroup.className = 'button-group';
 
                     // Create the edit button
                     const editButton = document.createElement('button');
@@ -284,7 +341,18 @@
                         window.location.href = `edit_project.html?project_id=${data.project_id}`;
                     });
 
-                    projectItem.appendChild(editButton);
+                    // Create the open button
+                    const openButton = document.createElement('button');
+                    openButton.innerText = 'Open';
+                    openButton.addEventListener('click', function() {
+                        // Redirect to the open page with the project_id as a query parameter
+                        window.location.href = `open_project.html?project_id=${data.project_id}`;
+                    });
+
+                    buttonGroup.appendChild(editButton);
+                    buttonGroup.appendChild(openButton);
+                    projectItem.appendChild(buttonGroup);
+
                     projectsList.appendChild(projectItem);
                 } else {
                     alert('Error: ' + data.message);
