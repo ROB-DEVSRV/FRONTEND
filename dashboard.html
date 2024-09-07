@@ -115,7 +115,7 @@
             console.log('No token found, redirecting to login.');
             window.location.href = 'index.html'; // Redirect to login if no token
         } else {
-            fetch('http://213.165.90.89:5000/auth/dashboard', {
+            fetch('https://opsensemble.com:5000/auth/dashboard', {
                 method: 'GET',
                 headers: {
                     'Authorization': 'Bearer ' + token

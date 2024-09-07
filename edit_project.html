@@ -153,7 +153,7 @@
             // window.location.href = 'index.html'; // Temporarily disable redirection
         } else {
             // Fetch project data using the new GET endpoint
-            fetch(`http://213.165.90.89:5000/auth/projects/get_details?project_id=${projectId}`, {
+            fetch(`https://opsensemble.com:5000/projects/get_details?project_id=${projectId}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': 'Bearer ' + token
@@ -201,7 +201,7 @@
             const projectName = document.getElementById('project_name').value;
 
             // Update project data using the new PUT endpoint
-            fetch('http://213.165.90.89:5000/auth/projects/edit_details', {
+            fetch('https://opsensemble.com:5000/projects/edit_details', {
                 method: 'PUT',
                 headers: {
                     'Authorization': 'Bearer ' + token,

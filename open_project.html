@@ -51,7 +51,7 @@
             color: white;
             text-decoration: none;
             font-size: 16px;
-            font-weight: bold; /* Make all links bold */
+            font-weight: bold;
             margin-bottom: 15px;
             display: block;
         }
@@ -128,7 +128,7 @@
             border: 1px solid #ccc;
             border-radius: 8px;
             width: 30%;
-            margin-right: 20px; /* Spacing between table and preview */
+            margin-right: 20px;
         }
 
         .scrollable-table table {
@@ -153,7 +153,7 @@
             border: 2px solid #ccc;
             padding: 10px;
             display: none;
-            width: 60%; /* Set width for the preview */
+            width: 60%;
             max-height: 300px;
             overflow-y: auto;
             display: flex;
@@ -168,12 +168,6 @@
         }
 
         /* Button styles */
-        .button-container {
-            display: flex;
-            justify-content: flex-start;
-            margin-top: 20px;
-        }
-
         .main-content button {
             padding: 10px 15px;
             font-size: 16px;
@@ -185,8 +179,25 @@
             margin-right: 10px;
         }
 
-        .main-content .back-button {
-            background-color: grey;
+        /* Hide the default file input */
+        #imageUpload {
+            display: none;
+        }
+
+        /* Custom button for file input */
+        .custom-file-upload {
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .custom-file-upload:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
@@ -211,7 +222,7 @@
             <p id="welcome-message"></p>
             <p id="projects-token">Projects Account Number: </p>
             <p id="project-id">Project ID: </p>
-            <p id="project-name">Project Name: </p> <!-- Added project name field -->
+            <p id="project-name">Project Name: </p>
 
             <!-- Tabbed Interface -->
             <div class="tab">
@@ -223,11 +234,13 @@
             <!-- Tab content -->
             <div id="Input" class="tab-content active">
                 <h4>Input</h4>
-                <input type="file" id="imageUpload" accept="image/*" multiple> <!-- Enable multiple file selection -->
+
+                <!-- Custom label to trigger file input -->
+                <label class="custom-file-upload">
+                    Choose Files
+                    <input type="file" id="imageUpload" accept="image/*" multiple>
+                </label>
                 <br><br>
-                <div class="button-container">
-                    <button id="removeAllImages">Remove All Images</button>
-                </div>
 
                 <!-- Flex container for table and preview -->
                 <div class="input-container">
@@ -237,7 +250,6 @@
                             <thead>
                                 <tr>
                                     <th>Filename</th>
-                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -245,7 +257,7 @@
                             </tbody>
                         </table>
                     </div>
-                    
+
                     <!-- Preview Area -->
                     <div id="imagePreview">
                         <img id="previewImage" src="" alt="Image Preview">
@@ -264,17 +276,10 @@
                     <p id="outputText">AI's analysis will be shown here.</p>
                 </div>
             </div>
-
-            <!-- Button Section -->
-            <div class="button-container">
-                <button type="button" class="back-button">Back</button>
-                <button type="submit">Save</button>
-            </div>
         </div>
     </div>
 
     <script>
-        // Function to handle tab switching
         function openTab(evt, tabName) {
             var i, tabcontent, tablinks;
             tabcontent = document.getElementsByClassName("tab-content");
@@ -289,132 +294,151 @@
             evt.currentTarget.className += " active";
         }
 
-        // Default open tab
-        document.getElementById("Input").style.display = "block";
+        document.getElementById('Input').style.display = 'block';
 
-        // Retrieve token from localStorage
         const token = localStorage.getItem('token');
-
-        // Get project_id from URL query parameters
         const urlParams = new URLSearchParams(window.location.search);
         const projectId = urlParams.get('project_id');
 
-        // Check if token exists
         if (!token) {
-            console.log('No token found. You would be redirected to login, but redirection is disabled.');
-            // window.location.href = 'index.html'; // Temporarily disable redirection
+            console.log('No token found.');
         } else {
-            // Fetch project data using the new GET endpoint
-            fetch(`http://213.165.90.89:5000/auth/projects/get_details?project_id=${projectId}`, {
+            // Fetch project details (top section)
+            fetch(`https://opsensemble.com:5000/projects/get_details?project_id=${projectId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById('greeting').innerText = `Hello, ${data.user.name}`;
+                    document.getElementById('projects-token').innerText = `Projects Account Number: ${data.projects_token}`;
+                    document.getElementById('project-id').innerText = `Project ID: ${projectId}`;
+                    document.getElementById('project-name').innerText = `Project Name: ${data.project.project_name || 'Unnamed Project'}`;
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching project details:', error);
+            });
+
+            // Fetch input files (lower section)
+            fetch(`https://opsensemble.com:5000/projects/manage_input_files?project_id=${projectId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    const files = data.files;
+                    const imageTableBody = document.querySelector('#imageTable tbody');
+                    imageTableBody.innerHTML = ''; // Clear existing rows
+
+                    files.forEach((file) => {
+                        const row = document.createElement('tr');
+                        const filenameCell = document.createElement('td');
+                        filenameCell.style.cursor = 'pointer';
+                        filenameCell.textContent = file;
+                        filenameCell.addEventListener('click', () => previewImage(file));
+                        
+                        row.appendChild(filenameCell);
+                        imageTableBody.appendChild(row);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching files:', error);
+            });
+
+            // Handle file upload
+            document.getElementById('imageUpload').addEventListener('change', function(event) {
+                const files = event.target.files;
+                const formData = new FormData();
+                
+                Array.from(files).forEach(file => {
+                    formData.append('files', file); // Append each file to the form data
+                });
+
+                // Send files to Flask route for uploading
+                fetch(`https://opsensemble.com:5000/projects/manual_upload_files?project_id=${projectId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert('Files uploaded successfully');
+                        updateFileList(); // Refresh file list
+                        
+                        // Clear the file input to remove selected file names
+                        document.getElementById('imageUpload').value = ''; 
+                    } else {
+                        alert('Error uploading files: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error during file upload:', error);
+                    alert('Error uploading files');
+                });
+            });
+        }
+
+        function updateFileList() {
+            fetch(`https://opsensemble.com:5000/projects/manage_input_files?project_id=${projectId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const imageTableBody = document.querySelector('#imageTable tbody');
+                imageTableBody.innerHTML = ''; // Clear existing rows
+
+                data.files.forEach((file) => {
+                    const row = document.createElement('tr');
+                    const filenameCell = document.createElement('td');
+                    filenameCell.style.cursor = 'pointer';
+                    filenameCell.textContent = file;
+                    filenameCell.addEventListener('click', () => previewImage(file));
+                    
+                    row.appendChild(filenameCell);
+                    imageTableBody.appendChild(row);
+                });
+            });
+        }
+
+        function previewImage(fileName) {
+            const imageUrl = `https://opsensemble.com:5000/projects/manage_input_files?project_id=${projectId}&file_name=${fileName}`;
+            
+            fetch(imageUrl, {
                 method: 'GET',
                 headers: {
                     'Authorization': 'Bearer ' + token
                 }
             })
             .then(response => {
-                if (response.status === 401 || response.status === 403) {
-                    console.log('Unauthorized access detected. You would be redirected to login, but redirection is disabled.');
-                    // window.location.href = 'index.html'; // Temporarily disable redirection
+                if (!response.ok) {
+                    throw new Error('Failed to fetch file for preview');
                 }
-                return response.json();
+                return response.blob();  // Get the file data as a Blob
             })
-            .then(data => {
-                if (data.status === 'success') {
-                    document.getElementById('greeting').innerText = `Hello, ${data.user.name}`;
-                    document.getElementById('welcome-message').innerText = `Viewing the details of your project, ${data.user.name}.`;
-
-                    // Display the projects token, project ID, and project name
-                    document.getElementById('projects-token').innerText = `Projects Account Number: ${data.projects_token}`;
-                    document.getElementById('project-id').innerText = `Project ID: ${projectId}`;
-                    document.getElementById('project-name').innerText = `Project Name: ${data.project.project_name || 'Unnamed Project'}`;
-
-                    // Check if the user is an admin and display the admin section
-                    if (data.user.admin === 'root') {
-                        document.getElementById('admin-section').style.display = 'block';
-                    }
-
-                } else {
-                    console.log('Failed to fetch project data. Redirection is disabled.');
-                    // window.location.href = 'index.html'; // Temporarily disable redirection
-                }
+            .then(blob => {
+                const imageURL = URL.createObjectURL(blob);
+                document.getElementById('previewImage').src = imageURL;
+                document.getElementById('imagePreview').style.display = 'block';
             })
             .catch(error => {
-                console.error('Fetch error:', error);
-                // window.location.href = 'index.html'; // Temporarily disable redirection
+                console.error('Error fetching file:', error);
+                alert('Error loading preview.');
             });
         }
-
-        // Function to update the table with images from local storage
-        function updateImageTable() {
-            const imageTableBody = document.querySelector('#imageTable tbody');
-            imageTableBody.innerHTML = ''; // Clear existing rows
-
-            const storedImages = JSON.parse(localStorage.getItem('uploadedImages')) || [];
-
-            storedImages.forEach((image, index) => {
-                const row = document.createElement('tr');
-                
-                const filenameCell = document.createElement('td');
-                filenameCell.style.cursor = 'pointer';
-                filenameCell.textContent = image.name;
-                filenameCell.addEventListener('click', () => previewImage(index));
-                
-                const actionCell = document.createElement('td');
-                const deleteButton = document.createElement('button');
-                deleteButton.textContent = 'Delete';
-                deleteButton.addEventListener('click', () => deleteImage(index));
-                
-                actionCell.appendChild(deleteButton);
-                row.appendChild(filenameCell);
-                row.appendChild(actionCell);
-                imageTableBody.appendChild(row);
-            });
-        }
-
-        // Function to handle file upload
-        document.getElementById('imageUpload').addEventListener('change', function(event) {
-            const files = event.target.files;
-            const storedImages = JSON.parse(localStorage.getItem('uploadedImages')) || [];
-
-            Array.from(files).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    storedImages.push({ name: file.name, data: e.target.result });
-                    localStorage.setItem('uploadedImages', JSON.stringify(storedImages));
-                    updateImageTable();
-                }
-                reader.readAsDataURL(file);
-            });
-        });
-
-        // Function to preview the image
-        function previewImage(index) {
-            const storedImages = JSON.parse(localStorage.getItem('uploadedImages')) || [];
-            const image = storedImages[index];
-            if (image) {
-                document.getElementById('previewImage').src = image.data;
-                document.getElementById('imagePreview').style.display = 'block';
-            }
-        }
-
-        // Function to delete an image
-        function deleteImage(index) {
-            let storedImages = JSON.parse(localStorage.getItem('uploadedImages')) || [];
-            storedImages.splice(index, 1); // Remove the image at the specified index
-            localStorage.setItem('uploadedImages', JSON.stringify(storedImages));
-            updateImageTable();
-            document.getElementById('imagePreview').style.display = 'none';
-        }
-
-        // Function to remove all images
-        document.getElementById('removeAllImages').addEventListener('click', function() {
-            localStorage.removeItem('uploadedImages');
-            updateImageTable();
-            document.getElementById('imagePreview').style.display = 'none';
-        });
-
-        // Initial table update on page load
-        document.addEventListener('DOMContentLoaded', updateImageTable);
     </script>
 </body>
 </html>

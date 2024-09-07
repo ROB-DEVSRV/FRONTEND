@@ -25,7 +25,7 @@
         document.getElementById('register-form').addEventListener('submit', function(event) {
             event.preventDefault();
             const formData = new FormData(this);
-            fetch('http://213.165.90.89:5000/auth/register', {
+            fetch('https://opsensemble.com:5000/auth/register', {
                 method: 'POST',
                 body: new URLSearchParams(formData)
             })

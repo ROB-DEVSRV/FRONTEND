@@ -169,7 +169,7 @@
         function fetchTotpSecret() {
             clearQrCode(); // Clear the old QR code
             setTimeout(() => {
-                fetch('http://213.165.90.89:5000/auth/user_settings', {
+                fetch('https://opsensemble.com:5000/auth/user_settings', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -223,7 +223,7 @@
                     return;
                 }
 
-                fetch('http://213.165.90.89:5000/auth/totp/confirm_code', {
+                fetch('https://opsensemble.com:5000/auth/totp/confirm_code', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -283,7 +283,7 @@
                 return;
             }
 
-            fetch('http://213.165.90.89:5000/auth/totp/generate_new_secret', {
+            fetch('https://opsensemble.com:5000/auth/totp/generate_new_secret', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -319,7 +319,7 @@
                 return;
             }
 
-            fetch('http://213.165.90.89:5000/auth/totp/disable', {
+            fetch('https://opsensemble.com:5000/auth/totp/disable', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

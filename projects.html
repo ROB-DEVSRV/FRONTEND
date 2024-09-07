@@ -185,7 +185,7 @@
             console.log('No token found, redirecting to login.');
             window.location.href = 'index.html'; // Redirect to login if no token
         } else {
-            fetch('http://213.165.90.89:5000/auth/projects', {
+            fetch('https://opsensemble.com:5000/projects/overview', {
                 method: 'GET',
                 headers: {
                     'Authorization': 'Bearer ' + token
@@ -276,7 +276,7 @@
         }
 
         document.getElementById('initiate-project').addEventListener('click', function() {
-            fetch('http://213.165.90.89:5000/auth/projects/initiate', {
+            fetch('https://opsensemble.com:5000/projects/initiate_account', {
                 method: 'POST',
                 headers: {
                     'Authorization': 'Bearer ' + token
@@ -299,7 +299,7 @@
         });
 
         document.getElementById('add-project').addEventListener('click', function() {
-            fetch('http://213.165.90.89:5000/auth/projects/add', {
+            fetch('https://opsensemble.com:5000/projects/add_new', {
                 method: 'POST',
                 headers: {
                     'Authorization': 'Bearer ' + token,

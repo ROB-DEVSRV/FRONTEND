@@ -29,7 +29,7 @@
             document.getElementById('email').value = email;
 
             // Fetch the verification timer information from the server
-            fetch(`http://213.165.90.89:5000/auth/verification_timer?email=${encodeURIComponent(email)}`)
+            fetch(`https://opsensemble.com:5000/auth/verification_timer?email=${encodeURIComponent(email)}`)
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
@@ -82,7 +82,7 @@
         document.getElementById('verify-email-form').addEventListener('submit', function(event) {
             event.preventDefault();
             const formData = new FormData(this);
-            fetch('http://213.165.90.89:5000/auth/login/verify', {
+            fetch('https://opsensemble.com:5000/auth/login/verify', {
                 method: 'POST',
                 body: new URLSearchParams(formData)
             })

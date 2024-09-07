@@ -235,7 +235,7 @@
     </div>
 
     <script>
-        const apiBaseUrl = "http://213.165.90.89:5000/auth/user_settings";
+        const apiBaseUrl = "https://opsensemble.com:5000/auth/user_settings";
 
         // Function to fetch user data
         function fetchUserData() {
@@ -283,7 +283,7 @@
                     // Handle the button click for TOTP setup/update
                     totpAuthButton.addEventListener('click', function () {
                         if (!data.user['totp_secret']) {
-                            fetch('http://213.165.90.89:5000/auth/totp/generate_new_secret', {
+                            fetch('https://opsensemble.com:5000/auth/totp/generate_new_secret', {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
