@@ -290,8 +290,8 @@
             for (i = 0; i < tablinks.length; i++) {
                 tablinks[i].className = tablinks[i].className.replace(" active", "");
             }
-            document.getElementById(tabName).style.display = "block";
-            evt.currentTarget.className += " active";
+            document.getElementById(tabName).style.display = 'block';
+            evt.currentTarget.className += ' active';
         }
 
         document.getElementById('Input').style.display = 'block';
@@ -341,7 +341,7 @@
                         const row = document.createElement('tr');
                         const filenameCell = document.createElement('td');
                         filenameCell.style.cursor = 'pointer';
-                        filenameCell.textContent = file;
+                        filenameCell.textContent = file;  // Display only the filename (no folder prefix)
                         filenameCell.addEventListener('click', () => previewImage(file));
                         
                         row.appendChild(filenameCell);
