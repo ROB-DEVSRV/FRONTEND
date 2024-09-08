@@ -347,6 +347,16 @@
                             <div class="metadata-item"><span>MIME Type:</span> image/png</div>
                             <div class="metadata-item"><span>Created:</span> 2024-09-08</div>
                             <div class="metadata-item"><span>Size:</span> 1024KB</div>
+                            <div class="metadata-item"><span>Last Modified:</span> 2024-09-10</div>
+                            <div class="metadata-item"><span>Resolution:</span> 1440x838</div>
+                            <div class="metadata-item"><span>Pixel Count:</span> 1,207,200</div>
+                            <div class="metadata-item"><span>Aspect Ratio:</span> 16:9</div>
+                            <div class="metadata-item"><span>Color Depth:</span> RGBA</div>
+                            <div class="metadata-item"><span>Bit Depth:</span> 8-bit</div>
+                            <div class="metadata-item"><span>File Hash:</span> 407f235c8e88b7c0ceaea6467fc1ab46</div>
+                            <div class="metadata-item"><span>Upload Source:</span> web</div>
+                            <div class="metadata-item"><span>Compression Type:</span> none</div>
+                            <div class="metadata-item"><span>Compression Ratio:</span> 1.2:1</div>
                         </div>
                     </div>
                 </div>
@@ -464,6 +474,7 @@
                 
                 Array.from(files).forEach(file => {
                     formData.append('files', file); // Append each file to the form data
+                    formData.append('lastModified', file.lastModified);  // Capture the last modified timestamp
                 });
 
                 // Send files to Flask route for uploading
@@ -641,11 +652,22 @@
 
         function formatMetadata(metadata) {
             return `
+                <div class="metadata-item"><span>Upload Time:</span> ${metadata.upload_time || 'N/A'}</div>    
                 <div class="metadata-item"><span>Filename:</span> ${metadata.filename}</div>
                 <div class="metadata-item"><span>Full Path:</span> ${metadata.full_path}</div>
                 <div class="metadata-item"><span>MIME Type:</span> ${metadata.mime_type}</div>
                 <div class="metadata-item"><span>Created:</span> ${metadata.created}</div>
                 <div class="metadata-item"><span>Size:</span> ${metadata.size}</div>
+                <div class="metadata-item"><span>Last Modified:</span> ${metadata.last_modified}</div>
+                <div class="metadata-item"><span>Resolution:</span> ${metadata.resolution ? metadata.resolution.join('x') : 'N/A'}</div>
+                <div class="metadata-item"><span>Pixel Count:</span> ${metadata.pixel_count}</div>
+                <div class="metadata-item"><span>Aspect Ratio:</span> ${metadata.aspect_ratio}</div>
+                <div class="metadata-item"><span>Color Depth:</span> ${metadata.color_depth || 'N/A'}</div>
+                <div class="metadata-item"><span>Bit Depth:</span> ${metadata.bit_depth || 'N/A'}</div>
+                <div class="metadata-item"><span>File Hash:</span> ${metadata.file_hash}</div>
+                <div class="metadata-item"><span>Upload Source:</span> ${metadata.upload_source}</div>
+                <div class="metadata-item"><span>Compression Type:</span> ${metadata.compression_type || 'N/A'}</div>
+                <div class="metadata-item"><span>Compression Ratio:</span> ${metadata.compression_ratio || 'N/A'}</div>
             `;
         }
     </script>
