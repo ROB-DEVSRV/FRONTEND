@@ -74,6 +74,22 @@
             margin-bottom: 20px;
         }
 
+        /* Font styling for the bold labels in project details */
+        .bold-label {
+            font-weight: bold !important;
+        }
+
+        /* Reduce font size for the project details */
+        #projects-token, #project-id, #project-name {
+            font-size: 14px; /* Adjust the size if you want it smaller */
+            margin-bottom: 10px; /* Add space below the last item */
+        }
+
+        /* Add space between the project details and the tabs */
+        #project-name {
+            margin-bottom: 10px;
+        }
+
         /* Tab styles */
         .tab {
             display: flex;
@@ -140,12 +156,18 @@
             padding: 8px;
             border-bottom: 1px solid #ccc;
             text-align: left;
+            font-size: 13px; /* Reduce font size for consistency */
         }
 
         .scrollable-table th {
             background-color: #f4f4f4;
             position: sticky;
             top: 0;
+            color: #000; /* Ensure header color is black */
+        }
+
+        .scrollable-table td {
+            background-color: white; /* Same background color as the metadata section */
         }
 
         /* Image preview */
@@ -167,18 +189,47 @@
             height: auto;
         }
 
-        /* Metadata section */
-        #fileMetadata {
-            width: 30%;
-            padding: 10px;
-            background-color: #f4f4f4;
-            border: 2px solid #ccc;
+        /* Scrollable metadata section */
+        .scrollable-metadata {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
             border-radius: 8px;
+            width: 30%; /* Same width as the filename section */
+            margin-left: 20px; /* Keep some space between the sections */
         }
 
-        #jsonMetadata {
-            white-space: pre-wrap;
-            font-family: monospace;
+        /* File Metadata Header */
+        .metadata-header {
+            background-color: #f4f4f4 !important; /* Same background color as the filename section */
+            font-weight: bold;
+            padding: 8px;
+            border-bottom: 1px solid #ccc;
+            text-align: left;
+            font-size: 13px; /* Font size to match the filename header */
+            position: sticky; /* Sticky header for scrolling */
+            top: 0;
+        }
+
+        /* Metadata content styling similar to the filename table */
+        .metadata-item {
+            padding: 8px;
+            border-bottom: 1px solid #ccc;
+            text-align: left;
+            font-size: 13px;
+            background-color: white; /* Same as the filename background */
+            width: 100%;
+            box-sizing: border-box; /* Ensure padding doesn't affect width */
+            overflow-wrap: break-word; /* Handle long text */
+        }
+
+        /* Ensures the border lines go to the edges, similar to the filename table */
+        .scrollable-metadata div {
+            padding: 8px;
+            border-bottom: 1px solid #ccc;
+            font-size: 13px; /* Match font size with the filename section */
+            width: 100%; /* Full width */
+            background-color: white; /* Match the background color with the filename section */
         }
 
         /* Button styles */
@@ -234,9 +285,15 @@
         <div class="main-content">
             <h3>Project Details</h3>
             <p id="welcome-message"></p>
-            <p id="projects-token">Projects Account Number: </p>
-            <p id="project-id">Project ID: </p>
-            <p id="project-name">Project Name: </p>
+            <p id="projects-token">
+                <span class="bold-label">Projects Account Number:</span> 629623380086
+            </p>
+            <p id="project-id">
+                <span class="bold-label">Project ID:</span> 634775066023
+            </p>
+            <p id="project-name">
+                <span class="bold-label">Project Name:</span> New project
+            </p>
 
             <!-- Tabbed Interface -->
             <div class="tab">
@@ -247,11 +304,10 @@
 
             <!-- Tab content -->
             <div id="Input" class="tab-content active">
-                <h4>Input</h4>
 
                 <!-- Custom label to trigger file input -->
                 <label class="custom-file-upload">
-                    Choose Files
+                    Upload Files
                     <input type="file" id="imageUpload" accept="image/*" multiple>
                 </label>
                 <br><br>
@@ -277,10 +333,19 @@
                         <img id="previewImage" src="" alt="Image Preview">
                     </div>
 
-                    <!-- File Metadata -->
-                    <div id="fileMetadata">
-                        <h4>File Metadata</h4>
-                        <pre id="jsonMetadata">Select a file to see metadata</pre>
+                    <!-- Scrollable metadata container -->
+                    <div class="scrollable-metadata">
+                        <div class="metadata-header">
+                            File Metadata
+                        </div>
+                        <div id="formattedMetadata">
+                            <!-- Dynamically filled metadata content will go here -->
+                            <div class="metadata-item"><span>Filename:</span> example.png</div>
+                            <div class="metadata-item"><span>Full Path:</span> /path/to/example.png</div>
+                            <div class="metadata-item"><span>MIME Type:</span> image/png</div>
+                            <div class="metadata-item"><span>Created:</span> 2024-09-08</div>
+                            <div class="metadata-item"><span>Size:</span> 1024KB</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -480,20 +545,26 @@
             })
             .then(data => {
                 if (data.status === 'success' && data.metadata) {
-                    try {
-                        document.getElementById('jsonMetadata').textContent = JSON.stringify(JSON.parse(data.metadata), null, 2);
-                    } catch (error) {
-                        console.error('Error parsing JSON metadata:', error);
-                        document.getElementById('jsonMetadata').textContent = "Invalid metadata format.";
-                    }
+                    const formattedMetadata = formatMetadata(JSON.parse(data.metadata));
+                    document.getElementById('formattedMetadata').innerHTML = formattedMetadata;
                 } else {
-                    document.getElementById('jsonMetadata').textContent = "No metadata available.";
+                    document.getElementById('formattedMetadata').textContent = "No metadata available.";
                 }
             })
             .catch(error => {
                 console.error('Error fetching metadata:', error);
-                document.getElementById('jsonMetadata').textContent = 'Error loading metadata.';
+                document.getElementById('formattedMetadata').textContent = 'Error loading metadata.';
             });
+        }
+
+        function formatMetadata(metadata) {
+            return `
+                <div class="metadata-item"><span>Filename:</span> ${metadata.filename}</div>
+                <div class="metadata-item"><span>Full Path:</span> ${metadata.full_path}</div>
+                <div class="metadata-item"><span>MIME Type:</span> ${metadata.mime_type}</div>
+                <div class="metadata-item"><span>Created:</span> ${metadata.created}</div>
+                <div class="metadata-item"><span>Size:</span> ${metadata.size}</div>
+            `;
         }
     </script>
 </body>
