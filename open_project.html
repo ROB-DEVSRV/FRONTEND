@@ -135,6 +135,7 @@
         /* Flex container for input section */
         .input-container {
             display: flex;
+            justify-content: space-between;
         }
 
         /* Scrollable table for images */
@@ -143,7 +144,7 @@
             overflow-y: auto;
             border: 1px solid #ccc;
             border-radius: 8px;
-            width: 30%;
+            width: 40%; /* Increased width to reduce scrolling */
             margin-right: 20px;
         }
 
@@ -175,7 +176,7 @@
             border: 2px solid #ccc;
             padding: 10px;
             display: none;
-            width: 60%;
+            width: 50%; /* Reduced width by 20% */
             max-height: 300px;
             overflow-y: auto;
             display: flex;
@@ -320,6 +321,7 @@
                             <thead>
                                 <tr>
                                     <th>Filename</th>
+                                    <th>Actions</th> <!-- New column for trash icon -->
                                 </tr>
                             </thead>
                             <tbody>
@@ -417,24 +419,39 @@
             })
             .then(response => response.json())
             .then(data => {
-                if (data.status === 'success') {
-                    const files = data.files;
-                    const imageTableBody = document.querySelector('#imageTable tbody');
-                    imageTableBody.innerHTML = ''; // Clear existing rows
+                const imageTableBody = document.querySelector('#imageTable tbody');
+                imageTableBody.innerHTML = ''; // Clear existing rows
 
-                    files.forEach((file) => {
-                        if (!file.endsWith('.json') && !file.endsWith('.keep')) { // Exclude JSON and .keep files
-                            const row = document.createElement('tr');
-                            const filenameCell = document.createElement('td');
-                            filenameCell.style.cursor = 'pointer';
-                            filenameCell.textContent = file;  // Display only the filename (no folder prefix)
-                            filenameCell.addEventListener('click', () => previewImageAndMetadata(file));
-                            
-                            row.appendChild(filenameCell);
-                            imageTableBody.appendChild(row);
-                        }
-                    });
-                }
+                data.files.forEach((file) => {
+                    if (!file.endsWith('.json') && !file.endsWith('.keep')) { // Exclude JSON and .keep files
+                        const row = document.createElement('tr');
+                        const filenameCell = document.createElement('td');
+                        const actionsCell = document.createElement('td');
+
+                        filenameCell.style.cursor = 'pointer';
+                        filenameCell.textContent = file;  // Display only the filename (no folder prefix)
+
+                        // Handle click to select and highlight the file
+                        filenameCell.addEventListener('click', () => {
+                            previewImageAndMetadata(file);
+                            highlightSelectedFile(row);
+                        });
+
+                        // Add trash can icon
+                        const trashIcon = document.createElement('span');
+                        trashIcon.innerHTML = '🗑️'; // This can be replaced by a proper trash icon (e.g. FontAwesome)
+                        trashIcon.style.cursor = 'pointer';
+                        trashIcon.addEventListener('click', () => {
+                            const folderName = getFolderName(file);
+                            deleteFolder(folderName);  // Call delete function on click
+                        });
+
+                        actionsCell.appendChild(trashIcon);
+                        row.appendChild(filenameCell);
+                        row.appendChild(actionsCell);
+                        imageTableBody.appendChild(row);
+                    }
+                });
             })
             .catch(error => {
                 console.error('Error fetching files:', error);
@@ -492,14 +509,79 @@
                     if (!file.endsWith('.json') && !file.endsWith('.keep')) { // Exclude JSON and .keep files
                         const row = document.createElement('tr');
                         const filenameCell = document.createElement('td');
+                        const actionsCell = document.createElement('td');
+
                         filenameCell.style.cursor = 'pointer';
                         filenameCell.textContent = file;
                         filenameCell.addEventListener('click', () => previewImageAndMetadata(file));
                         
+                        // Add trash icon for deleting
+                        const trashIcon = document.createElement('span');
+                        trashIcon.innerHTML = '🗑️';
+                        trashIcon.style.cursor = 'pointer';
+                        trashIcon.addEventListener('click', () => {
+                            const folderName = getFolderName(file);
+                            deleteFolder(folderName);
+                        });
+
+                        actionsCell.appendChild(trashIcon);
                         row.appendChild(filenameCell);
+                        row.appendChild(actionsCell);
                         imageTableBody.appendChild(row);
                     }
                 });
+            });
+        }
+
+        function highlightSelectedFile(row) {
+            const rows = document.querySelectorAll('#imageTable tr');
+            rows.forEach(r => r.classList.remove('selected-file'));  // Remove highlight from all rows
+            row.classList.add('selected-file');  // Highlight the clicked row
+        }
+
+        // Extract the folder name from the file path
+        function getFolderName(fileName) {
+            // Assuming fileName is something like 'folderName/fileName.ext'
+            return fileName.split('/')[0];
+        }
+
+        // Updated deleteFolder function to use POST method with console logging
+        function deleteFolder(folderName) {
+            const sanitizedFolderName = getFolderName(folderName);  // Sanitize folder name
+            const confirmed = confirm('Are you sure you want to delete this folder and all its contents?');
+            if (!confirmed) return;
+
+            // Log the project ID and folder name to the console for debugging
+            console.log("Project ID being sent:", projectId);
+            console.log("Folder name being sent:", sanitizedFolderName);
+
+            fetch(`https://opsensemble.com:5000/projects/delete_file`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    project_id: projectId,
+                    file_name: sanitizedFolderName  // Use sanitized folder name
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    console.log('Folder deleted successfully:', sanitizedFolderName);
+                    alert('Folder deleted successfully');
+                    updateFileList();  // Refresh file list after deletion
+                    document.getElementById('imagePreview').style.display = 'none';  // Hide image preview
+                    document.getElementById('formattedMetadata').innerHTML = '';  // Clear metadata display
+                } else {
+                    console.error('Error deleting folder:', data.message);
+                    alert('Error deleting folder: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error during folder deletion:', error);
+                alert('Error deleting folder');
             });
         }
 
