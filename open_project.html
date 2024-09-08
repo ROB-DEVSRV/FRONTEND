@@ -167,6 +167,20 @@
             height: auto;
         }
 
+        /* Metadata section */
+        #fileMetadata {
+            width: 30%;
+            padding: 10px;
+            background-color: #f4f4f4;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+        }
+
+        #jsonMetadata {
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+
         /* Button styles */
         .main-content button {
             padding: 10px 15px;
@@ -242,7 +256,7 @@
                 </label>
                 <br><br>
 
-                <!-- Flex container for table and preview -->
+                <!-- Flex container for table, preview, and metadata -->
                 <div class="input-container">
                     <!-- Scrollable table for images -->
                     <div class="scrollable-table">
@@ -261,6 +275,12 @@
                     <!-- Preview Area -->
                     <div id="imagePreview">
                         <img id="previewImage" src="" alt="Image Preview">
+                    </div>
+
+                    <!-- File Metadata -->
+                    <div id="fileMetadata">
+                        <h4>File Metadata</h4>
+                        <pre id="jsonMetadata">Select a file to see metadata</pre>
                     </div>
                 </div>
             </div>
@@ -338,14 +358,16 @@
                     imageTableBody.innerHTML = ''; // Clear existing rows
 
                     files.forEach((file) => {
-                        const row = document.createElement('tr');
-                        const filenameCell = document.createElement('td');
-                        filenameCell.style.cursor = 'pointer';
-                        filenameCell.textContent = file;  // Display only the filename (no folder prefix)
-                        filenameCell.addEventListener('click', () => previewImage(file));
-                        
-                        row.appendChild(filenameCell);
-                        imageTableBody.appendChild(row);
+                        if (!file.endsWith('.json') && !file.endsWith('.keep')) { // Exclude JSON and .keep files
+                            const row = document.createElement('tr');
+                            const filenameCell = document.createElement('td');
+                            filenameCell.style.cursor = 'pointer';
+                            filenameCell.textContent = file;  // Display only the filename (no folder prefix)
+                            filenameCell.addEventListener('click', () => previewImageAndMetadata(file));
+                            
+                            row.appendChild(filenameCell);
+                            imageTableBody.appendChild(row);
+                        }
                     });
                 }
             })
@@ -402,21 +424,25 @@
                 imageTableBody.innerHTML = ''; // Clear existing rows
 
                 data.files.forEach((file) => {
-                    const row = document.createElement('tr');
-                    const filenameCell = document.createElement('td');
-                    filenameCell.style.cursor = 'pointer';
-                    filenameCell.textContent = file;
-                    filenameCell.addEventListener('click', () => previewImage(file));
-                    
-                    row.appendChild(filenameCell);
-                    imageTableBody.appendChild(row);
+                    if (!file.endsWith('.json') && !file.endsWith('.keep')) { // Exclude JSON and .keep files
+                        const row = document.createElement('tr');
+                        const filenameCell = document.createElement('td');
+                        filenameCell.style.cursor = 'pointer';
+                        filenameCell.textContent = file;
+                        filenameCell.addEventListener('click', () => previewImageAndMetadata(file));
+                        
+                        row.appendChild(filenameCell);
+                        imageTableBody.appendChild(row);
+                    }
                 });
             });
         }
 
-        function previewImage(fileName) {
+        function previewImageAndMetadata(fileName) {
             const imageUrl = `https://opsensemble.com:5000/projects/manage_input_files?project_id=${projectId}&file_name=${fileName}`;
-            
+            const metadataUrl = `https://opsensemble.com:5000/projects/manage_input_files?project_id=${projectId}&file_name=${fileName}.json`;
+
+            // Fetch the image preview
             fetch(imageUrl, {
                 method: 'GET',
                 headers: {
@@ -425,9 +451,9 @@
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Failed to fetch file for preview');
+                    throw new Error('Failed to fetch image for preview');
                 }
-                return response.blob();  // Get the file data as a Blob
+                return response.blob();
             })
             .then(blob => {
                 const imageURL = URL.createObjectURL(blob);
@@ -435,8 +461,38 @@
                 document.getElementById('imagePreview').style.display = 'block';
             })
             .catch(error => {
-                console.error('Error fetching file:', error);
-                alert('Error loading preview.');
+                console.error('Error fetching image:', error);
+                alert('Error loading image preview.');
+            });
+
+            // Fetch the metadata
+            fetch(metadataUrl, {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch metadata');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success' && data.metadata) {
+                    try {
+                        document.getElementById('jsonMetadata').textContent = JSON.stringify(JSON.parse(data.metadata), null, 2);
+                    } catch (error) {
+                        console.error('Error parsing JSON metadata:', error);
+                        document.getElementById('jsonMetadata').textContent = "Invalid metadata format.";
+                    }
+                } else {
+                    document.getElementById('jsonMetadata').textContent = "No metadata available.";
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching metadata:', error);
+                document.getElementById('jsonMetadata').textContent = 'Error loading metadata.';
             });
         }
     </script>
