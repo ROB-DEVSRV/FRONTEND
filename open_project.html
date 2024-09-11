@@ -81,11 +81,10 @@
 
         /* Reduce font size for the project details */
         #projects-token, #project-id, #project-name {
-            font-size: 14px; /* Adjust the size if you want it smaller */
-            margin-bottom: 10px; /* Add space below the last item */
+            font-size: 14px;
+            margin-bottom: 10px;
         }
 
-        /* Add space between the project details and the tabs */
         #project-name {
             margin-bottom: 10px;
         }
@@ -93,21 +92,23 @@
         /* Tab styles */
         .tab {
             display: flex;
-            cursor: pointer;
+            justify-content: space-between;
             background-color: #ddd;
             border-radius: 8px;
-            overflow: hidden;
+            margin-bottom: 20px;
         }
 
         .tab button {
             background-color: inherit;
             flex: 1;
-            padding: 14px 16px;
+            padding: 10px 12px;
             border: none;
             outline: none;
             transition: background-color 0.3s;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
+            color: #333;
+            cursor: pointer;
         }
 
         .tab button:hover {
@@ -117,6 +118,11 @@
         .tab button.active {
             background-color: #007bff;
             color: white;
+        }
+
+        .tab button:not(.active) {
+            background-color: #ccc;
+            color: #333;
         }
 
         /* Tab content styles */
@@ -144,7 +150,7 @@
             overflow-y: auto;
             border: 1px solid #ccc;
             border-radius: 8px;
-            width: 40%; /* Increased width to reduce scrolling */
+            width: 40%;
             margin-right: 20px;
         }
 
@@ -157,18 +163,18 @@
             padding: 8px;
             border-bottom: 1px solid #ccc;
             text-align: left;
-            font-size: 13px; /* Reduce font size for consistency */
+            font-size: 13px;
         }
 
         .scrollable-table th {
             background-color: #f4f4f4;
             position: sticky;
             top: 0;
-            color: #000; /* Ensure header color is black */
+            color: #000;
         }
 
         .scrollable-table td {
-            background-color: white; /* Same background color as the metadata section */
+            background-color: white;
         }
 
         /* Image preview */
@@ -176,7 +182,7 @@
             border: 2px solid #ccc;
             padding: 10px;
             display: none;
-            width: 50%; /* Reduced width by 20% */
+            width: 50%;
             max-height: 300px;
             overflow-y: auto;
             display: flex;
@@ -196,41 +202,30 @@
             overflow-y: auto;
             border: 1px solid #ccc;
             border-radius: 8px;
-            width: 30%; /* Same width as the filename section */
-            margin-left: 20px; /* Keep some space between the sections */
+            width: 30%;
+            margin-left: 20px;
         }
 
-        /* File Metadata Header */
         .metadata-header {
-            background-color: #f4f4f4 !important; /* Same background color as the filename section */
+            background-color: #f4f4f4 !important;
             font-weight: bold;
             padding: 8px;
             border-bottom: 1px solid #ccc;
             text-align: left;
-            font-size: 13px; /* Font size to match the filename header */
-            position: sticky; /* Sticky header for scrolling */
+            font-size: 13px;
+            position: sticky;
             top: 0;
         }
 
-        /* Metadata content styling similar to the filename table */
         .metadata-item {
             padding: 8px;
             border-bottom: 1px solid #ccc;
             text-align: left;
             font-size: 13px;
-            background-color: white; /* Same as the filename background */
+            background-color: white;
             width: 100%;
-            box-sizing: border-box; /* Ensure padding doesn't affect width */
-            overflow-wrap: break-word; /* Handle long text */
-        }
-
-        /* Ensures the border lines go to the edges, similar to the filename table */
-        .scrollable-metadata div {
-            padding: 8px;
-            border-bottom: 1px solid #ccc;
-            font-size: 13px; /* Match font size with the filename section */
-            width: 100%; /* Full width */
-            background-color: white; /* Match the background color with the filename section */
+            box-sizing: border-box;
+            overflow-wrap: break-word;
         }
 
         /* Button styles */
@@ -243,44 +238,6 @@
             border: none;
             border-radius: 4px;
             margin-right: 10px;
-        }
-
-        /* Form styles */
-        form {
-            background-color: #f9f9f9;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
-
-        label {
-            font-size: 16px;
-            margin-bottom: 5px;
-            display: block;
-        }
-
-        select, input {
-            padding: 8px;
-            width: 100%;
-            margin-bottom: 15px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-        }
-
-        button {
-            padding: 10px 15px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-        }
-
-        /* Button hover effect */
-        button:hover {
-            background-color: #0056b3;
         }
 
         /* Hide the default file input */
@@ -336,14 +293,14 @@
 
             <!-- Tabbed Interface -->
             <div class="tab">
-                <button class="tablinks active" onclick="openTab(event, 'Input')">Input</button>
-                <button class="tablinks" onclick="openTab(event, 'Processing')">AI Engine</button>
-                <button class="tablinks" onclick="openTab(event, 'Output')">Output</button>
+                <button class="tablinks active" onclick="openTab(event, 'Input')">1. Input</button>
+                <button class="tablinks" onclick="openTab(event, 'Queueing')">2. Queueing</button>
+                <button class="tablinks" onclick="openTab(event, 'AIModel')">3. AI Model</button>
+                <button class="tablinks" onclick="openTab(event, 'Output')">4. Output</button>
             </div>
 
             <!-- Tab content -->
             <div id="Input" class="tab-content active">
-
                 <!-- Custom label to trigger file input -->
                 <label class="custom-file-upload">
                     Upload Files
@@ -353,13 +310,12 @@
 
                 <!-- Flex container for table, preview, and metadata -->
                 <div class="input-container">
-                    <!-- Scrollable table for images -->
                     <div class="scrollable-table">
                         <table id="imageTable">
                             <thead>
                                 <tr>
                                     <th>Filename</th>
-                                    <th>Actions</th> <!-- New column for trash icon -->
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -379,7 +335,6 @@
                             File Metadata
                         </div>
                         <div id="formattedMetadata">
-                            <!-- Dynamically filled metadata content will go here -->
                             <div class="metadata-item"><span>Filename:</span> example.png</div>
                             <div class="metadata-item"><span>Full Path:</span> /path/to/example.png</div>
                             <div class="metadata-item"><span>MIME Type:</span> image/png</div>
@@ -400,47 +355,14 @@
                 </div>
             </div>
 
-            <!-- Queue System -->
-            <div id="QueueSystem" class="tab-content active">
-                <h4>Queue System Configuration</h4>
-                <form id="queueOptionsForm">
-                    <!-- Queueing Mechanism Selection -->
-                    <label for="queueType"><strong>Select Queueing Mechanism:</strong></label>
-                    <select id="queueType" name="queueType">
-                        <option value="fifo">First In, First Out (FIFO)</option>
-                        <option value="priority">Priority Queuing</option>
-                        <option value="roundRobin">Round Robin</option>
-                        <option value="batchProcessing">Batch Processing</option>
-                    </select>
-
-                    <!-- Parallel Processing Option -->
-                    <label for="parallelProcessing"><strong>Enable Parallel Processing:</strong></label>
-                    <input type="checkbox" id="parallelProcessing" name="parallelProcessing">
-
-                    <!-- Batch Size for Batch Processing -->
-                    <label for="batchSize"><strong>Batch Size (if Batch Processing selected):</strong></label>
-                    <input type="number" id="batchSize" name="batchSize" min="1" value="10">
-
-                    <!-- File Size Based Queueing -->
-                    <label for="fileSizePriority"><strong>File Size Priority:</strong></label>
-                    <select id="fileSizePriority" name="fileSizePriority">
-                        <option value="none">None</option>
-                        <option value="smallFirst">Small Files First</option>
-                        <option value="largeFirst">Large Files First</option>
-                    </select>
-
-                    <!-- Manual Priority Assignment -->
-                    <label for="manualPriority"><strong>Assign Custom Priority (0 is highest):</strong></label>
-                    <input type="number" id="manualPriority" name="manualPriority" min="0" max="10" value="5">
-
-                    <!-- Submit Queue Configuration -->
-                    <button type="submit">Apply Queue Settings</button>
-                </form>
+            <div id="Queueing" class="tab-content">
+                <h4>Queueing System</h4>
+                <p>Details about queueing will be added here.</p>
             </div>
 
-            <div id="Processing" class="tab-content">
-                <h4>Processing</h4>
-                <img src="/img/chatgpt_icon.png" alt="AI Processing" id="chatgpt-icon">
+            <div id="AIModel" class="tab-content">
+                <h4>AI Model</h4>
+                <p>Details about AI model processing will go here.</p>
             </div>
 
             <div id="Output" class="tab-content">
@@ -515,21 +437,19 @@
                         const actionsCell = document.createElement('td');
 
                         filenameCell.style.cursor = 'pointer';
-                        filenameCell.textContent = file;  // Display only the filename (no folder prefix)
+                        filenameCell.textContent = file;
 
-                        // Handle click to select and highlight the file
                         filenameCell.addEventListener('click', () => {
                             previewImageAndMetadata(file);
                             highlightSelectedFile(row);
                         });
 
-                        // Add trash can icon
                         const trashIcon = document.createElement('span');
-                        trashIcon.innerHTML = '🗑️'; // This can be replaced by a proper trash icon (e.g. FontAwesome)
+                        trashIcon.innerHTML = '🗑️';
                         trashIcon.style.cursor = 'pointer';
                         trashIcon.addEventListener('click', () => {
                             const folderName = getFolderName(file);
-                            deleteFolder(folderName);  // Call delete function on click
+                            deleteFolder(folderName);
                         });
 
                         actionsCell.appendChild(trashIcon);
@@ -549,11 +469,10 @@
                 const formData = new FormData();
                 
                 Array.from(files).forEach(file => {
-                    formData.append('files', file); // Append each file to the form data
-                    formData.append('lastModified', file.lastModified);  // Capture the last modified timestamp
+                    formData.append('files', file);
+                    formData.append('lastModified', file.lastModified);
                 });
 
-                // Send files to Flask route for uploading
                 fetch(`https://opsensemble.com:5000/projects/manual_upload_files?project_id=${projectId}`, {
                     method: 'POST',
                     headers: {
@@ -565,10 +484,8 @@
                 .then(data => {
                     if (data.status === 'success') {
                         alert('Files uploaded successfully');
-                        updateFileList(); // Refresh file list
-                        
-                        // Clear the file input to remove selected file names
-                        document.getElementById('imageUpload').value = ''; 
+                        updateFileList();
+                        document.getElementById('imageUpload').value = '';
                     } else {
                         alert('Error uploading files: ' + data.message);
                     }
@@ -590,10 +507,10 @@
             .then(response => response.json())
             .then(data => {
                 const imageTableBody = document.querySelector('#imageTable tbody');
-                imageTableBody.innerHTML = ''; // Clear existing rows
+                imageTableBody.innerHTML = '';
 
                 data.files.forEach((file) => {
-                    if (!file.endsWith('.json') && !file.endsWith('.keep')) { // Exclude JSON and .keep files
+                    if (!file.endsWith('.json') && !file.endsWith('.keep')) {
                         const row = document.createElement('tr');
                         const filenameCell = document.createElement('td');
                         const actionsCell = document.createElement('td');
@@ -601,8 +518,7 @@
                         filenameCell.style.cursor = 'pointer';
                         filenameCell.textContent = file;
                         filenameCell.addEventListener('click', () => previewImageAndMetadata(file));
-                        
-                        // Add trash icon for deleting
+
                         const trashIcon = document.createElement('span');
                         trashIcon.innerHTML = '🗑️';
                         trashIcon.style.cursor = 'pointer';
@@ -622,23 +538,19 @@
 
         function highlightSelectedFile(row) {
             const rows = document.querySelectorAll('#imageTable tr');
-            rows.forEach(r => r.classList.remove('selected-file'));  // Remove highlight from all rows
-            row.classList.add('selected-file');  // Highlight the clicked row
+            rows.forEach(r => r.classList.remove('selected-file'));
+            row.classList.add('selected-file');
         }
 
-        // Extract the folder name from the file path
         function getFolderName(fileName) {
-            // Assuming fileName is something like 'folderName/fileName.ext'
             return fileName.split('/')[0];
         }
 
-        // Updated deleteFolder function to use POST method with console logging
         function deleteFolder(folderName) {
-            const sanitizedFolderName = getFolderName(folderName);  // Sanitize folder name
+            const sanitizedFolderName = getFolderName(folderName);
             const confirmed = confirm('Are you sure you want to delete this folder and all its contents?');
             if (!confirmed) return;
 
-            // Log the project ID and folder name to the console for debugging
             console.log("Project ID being sent:", projectId);
             console.log("Folder name being sent:", sanitizedFolderName);
 
@@ -650,7 +562,7 @@
                 },
                 body: JSON.stringify({
                     project_id: projectId,
-                    file_name: sanitizedFolderName  // Use sanitized folder name
+                    file_name: sanitizedFolderName
                 })
             })
             .then(response => response.json())
@@ -658,9 +570,9 @@
                 if (data.status === 'success') {
                     console.log('Folder deleted successfully:', sanitizedFolderName);
                     alert('Folder deleted successfully');
-                    updateFileList();  // Refresh file list after deletion
-                    document.getElementById('imagePreview').style.display = 'none';  // Hide image preview
-                    document.getElementById('formattedMetadata').innerHTML = '';  // Clear metadata display
+                    updateFileList();
+                    document.getElementById('imagePreview').style.display = 'none';
+                    document.getElementById('formattedMetadata').innerHTML = '';
                 } else {
                     console.error('Error deleting folder:', data.message);
                     alert('Error deleting folder: ' + data.message);
@@ -676,7 +588,6 @@
             const imageUrl = `https://opsensemble.com:5000/projects/manage_input_files?project_id=${projectId}&file_name=${fileName}`;
             const metadataUrl = `https://opsensemble.com:5000/projects/manage_input_files?project_id=${projectId}&file_name=${fileName}.json`;
 
-            // Fetch the image preview
             fetch(imageUrl, {
                 method: 'GET',
                 headers: {
@@ -699,7 +610,6 @@
                 alert('Error loading image preview.');
             });
 
-            // Fetch the metadata
             fetch(metadataUrl, {
                 method: 'GET',
                 headers: {
