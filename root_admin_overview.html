@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Root Admin Overview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f4;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #007bff;
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-radius: 8px;
+        }
+
+        .sidebar h2 {
+            font-weight: 500;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .sidebar a:hover {
+            text-decoration: underline;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            margin-left: 20px;
+        }
+
+        .main-content h3 {
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .main-content p {
+            margin-bottom: 15px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section h3 {
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .section a {
+            font-size: 12px;
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .section a:hover {
+            text-decoration: underline;
+        }
+
+        .placeholder {
+            font-size: 14px;
+            color: #555;
+            margin-top: 20px;
+        }
+
+        .data-table {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr 1.5fr;
+            gap: 10px;
+            font-size: 10pt;
+            margin-top: 20px;
+        }
+
+        .data-table div {
+            margin-bottom: 8px;
+            word-wrap: break-word;
+        }
+
+        .notes {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #555;
+        }
+
+        .excluded {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Menu -->
+        <div class="sidebar">
+            <div>
+                <h2 id="greeting">Hello, Rob</h2>
+                <a href="#" id="profile-link">Profile Settings</a>
+                <a href="#" id="projects-link">Projects</a>
+                <p id="admin-section" style="display: block;">
+                    <a href="root_admin_overview.html" class="admin-link">Root Admin</a>
+                </p>
+            </div>
+            <a href="#" id="logout">Logout</a>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <h3>Root Admin Overview</h3>
+
+            <!-- Section 1: Tracking User Activity -->
+            <div class="section">
+                <h3>Tracking User Activity</h3>
+                <a href="https://chatgpt.com/share/0cc7811b-c11d-4ebf-a79b-e56dc994c4e4" target="_blank">
+                    ChatGPT Thread
+                </a>: https://chatgpt.com/share/0cc7811b-c11d-4ebf-a79b-e56dc994c4e4
+            </div>
+
+            <!-- Section 2: Data Points for Tracking -->
+            <div class="section">
+                <h3>Data Points for Tracking</h3>
+                <div class="data-table">
+                    <!-- Column 1: Data Point Names -->
+                    <div>1. IP Address</div>
+                    <div>The public IP address of the visitor, useful for identifying location.</div>
+                    <div>192.168.1.100</div>
+
+                    <div>2. URL Visited</div>
+                    <div>The specific URL of the page the visitor accessed on your site.</div>
+                    <div>https://opsensemble.com/index.html</div>
+
+                    <div>3. Timestamp</div>
+                    <div>The exact date and time of the visit, logged in UTC.</div>
+                    <div>2024-09-10T14:00:00Z</div>
+
+                    <div>4. Referrer URL</div>
+                    <div>The previous URL the visitor came from (can be external or internal).</div>
+                    <div>https://google.com</div>
+
+                    <div>5. User-Agent</div>
+                    <div>Information about the browser, OS, and device used by the visitor.</div>
+                    <div>Mozilla/5.0 (Windows NT 10.0; Win64; x64)</div>
+
+                    <div>6. Screen Resolution</div>
+                    <div>The width and height of the visitor's screen, useful for UI analysis.</div>
+                    <div>1920x1080</div>
+
+                    <div>7. Device Type</div>
+                    <div>Whether the visitor is on a mobile, tablet, or desktop device.</div>
+                    <div>Desktop</div>
+
+                    <div>8. Cookies</div>
+                    <div>Values stored in the user's cookies, such as session tokens or user preferences.</div>
+                    <div>session_id=abc123</div>
+
+                    <div>9. Session Token</div>
+                    <div>A unique identifier for the visitor's session, useful for authentication tracking.</div>
+                    <div>abc123</div>
+
+                    <div>10. Preferred Language</div>
+                    <div>The language set in the visitor's browser, useful for localization.</div>
+                    <div>en-US</div>
+
+                    <div>11. Page Load Time</div>
+                    <div>How long the page took to load for the visitor, indicating performance.</div>
+                    <div>350ms</div>
+
+                    <div>12. JavaScript Errors</div>
+                    <div>Any JavaScript errors encountered by the user, useful for debugging.</div>
+                    <div>ReferenceError: foo is not defined</div>
+
+                    <div>13. Scroll Depth</div>
+                    <div>How far down the page the visitor scrolls, useful for content engagement analysis.</div>
+                    <div>75%</div>
+
+                    <div>14. Click Tracking</div>
+                    <div>Tracking where the visitor clicks on the page, useful for UX insights.</div>
+                    <div>Button clicked at (300, 400)</div>
+
+                    <div>15. Time Spent on Page</div>
+                    <div>How long the visitor spends on the page, useful for engagement metrics.</div>
+                    <div>120 seconds</div>
+
+                    <div>16. Network Information</div>
+                    <div>The type of network the visitor is on (e.g., WiFi, 4G), useful for performance insights.</div>
+                    <div>4G</div>
+
+                    <div>17. Battery Information</div>
+                    <div>The visitor's battery level and whether their device is charging (on mobile devices).</div>
+                    <div>Battery 80%, Charging: Yes</div>
+
+                    <div>18. Clipboard Data</div>
+                    <div>Any text the visitor copies from the page (with their permission).</div>
+                    <div>Copied: "OpsEnsemble overview text"</div>
+
+                    <div>19. Geolocation</div>
+                    <div>The visitor’s approximate location, based on their IP address (using external services).</div>
+                    <div>City: New York, Country: USA</div>
+
+                    <div>20. Operating System</div>
+                    <div>Details about the visitor's operating system, such as Windows, macOS, iOS, or Android.</div>
+                    <div>Windows 10</div>
+                </div>
+            </div>
+
+            <!-- Section: JWT Secondary Strategy Notes -->
+            <div class="notes">
+                <h3>JWT Secondary Strategy for Tracking</h3>
+                To efficiently track user activity during a session, a secondary JWT can be used in addition to the primary authentication token. This secondary JWT would store session-specific data, such as page visits, timestamps, and user navigation patterns.
+
+                Each time a user navigates to a new page, the session JWT is updated with the new page identifier and timestamp. This JWT is stored in session storage, ensuring it remains secure and ephemeral. At the end of the session (or on logout), the JWT can be sent to the server for logging and analysis, providing valuable insights into feature usage and user navigation behavior.
+            </div>
+
+            <!-- Section 3: Tracking System Performance -->
+            <div class="section">
+                <h3>Tracking System Performance</h3>
+                <a href="https://chatgpt.com/share/e274c2c5-b360-4e21-82a3-21d4848af627" target="_blank">System Performance Thread</a>: https://chatgpt.com/share/e274c2c5-b360-4e21-82a3-21d4848af627
+
+                <div class="data-table">
+                    <!-- Column 1: Data Point Names -->
+                    <div>1. Average CPU Load</div>
+                    <div>Measures the average CPU load across all cores over time.</div>
+                    <div>2.4%</div>
+
+                    <div>2. CPU Utilization Per Core</div>
+                    <div>Monitors real-time and average CPU usage per core, can be tracked via webhooks.</div>
+                    <div>Core 1: 1.5%, Core 2: 3.3%</div>
+
+                    <div>3. Total Memory Usage</div>
+                    <div>The total amount of memory currently being used.</div>
+                    <div>7.5 GB / 16 GB</div>
+
+                    <div>4. Free Memory</div>
+                    <div>The amount of memory available for future processes.</div>
+                    <div>8.5 GB</div>
+
+                    <div>5. Swap Usage</div>
+                    <div>Indicates if the system is running out of physical memory and swapping to disk.</div>
+                    <div>500 MB / 4 GB</div>
+
+                    <div class="excluded">6. Memory Usage by Process</div>
+                    <div class="excluded">To be tracked separately via HTOP, excluded from this web view as it changes dynamically.</div>
+                    <div class="excluded">HTOP</div>
+
+                    <div>7. Disk Space Utilization</div>
+                    <div>Total disk space used, monitored over time to track growth. Displayed in GB or TB.</div>
+                    <div>120 GB / 500 GB</div>
+
+                    <div>8. Network Usage</div>
+                    <div>Monitors daily and weekly data usage with a limit of 1 Gbit/s (IONOS provider limit).</div>
+                    <div>250 MB today, 1.2 GB this week</div>
+
+                    <div>9. Connection Counts</div>
+                    <div>Shows the number of active network connections and associated IP addresses. Monitors network for stale JWTs.</div>
+                    <div>10 connections, IP: 192.168.1.101</div>
+
+                    <div class="excluded">10. Application Performance</div>
+                    <div class="excluded">To be addressed in Celery strategy (tracking performance of tasks, queue/buffer).</div>
+                    <div class="excluded">CELERY</div>
+
+                    <div class="excluded">11. Celery Processes</div>
+                    <div class="excluded">Monitors the performance of Celery tasks and queue/buffer handling. Part of systemd processes.</div>
+                    <div class="excluded">CELERY</div>
+
+                    <div>12. Databases</div>
+                    <div>Includes the status of databases (e.g., MongoDB, MinIO) and consumption of space and I/O visualization.</div>
+                    <div>Status: MongoDB Active, MinIO Active</div>
+
+                    <div>13. System Uptime</div>
+                    <div>Displays system uptime as well as uptime for key services like Flask, MongoDB, and MinIO.</div>
+                    <div>System: 5 days, Flask: 4 days, MongoDB: 3 days, MinIO: 2 days</div>
+
+                    <div class="excluded">14. Resource Limits</div>
+                    <div class="excluded">To be managed by Celery.</div>
+                    <div class="excluded">CELERY</div>
+
+                    <div class="excluded">15. Process Metrics</div>
+                    <div class="excluded">Handled separately via HTOP, too dynamic for web view. Will monitor processes via CLI tools.</div>
+                    <div class="excluded">HTOP</div>
+
+                    <div class="excluded">16. Temperature and Fan Speeds</div>
+                    <div class="excluded">Not applicable as the VPS is managed by a cloud provider.</div>
+                    <div class="excluded">VPS PROVIDER</div>
+
+                    <div class="excluded">17. Power Usage</div>
+                    <div class="excluded">Not applicable, managed by cloud provider for VPS.</div>
+                    <div class="excluded">VPS PROVIDER</div>
+
+                    <div>18. Queue and Buffer Monitoring</div>
+                    <div>Monitors task queues and buffers, particularly for Celery task execution and delays.</div>
+                    <div class="excluded">CELERY</div>
+                </div>
+            </div>
+
+            <!-- Placeholder for Future Sections -->
+            <div class="placeholder">
+                This section will be used for performing admin-level actions, managing user permissions, and monitoring the application's status.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) {
+            console.log('No token found, redirecting to login.');
+            window.location.href = 'index.html';
+        } else {
+            fetch('https://opsensemble.com:5000/auth/dashboard', {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById('greeting').innerText = `Hello, Rob`;
+                } else {
+                    window.location.href = 'index.html';
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                window.location.href = 'index.html';
+            });
+        }
+
+        document.getElementById('logout').addEventListener('click', function() {
+            localStorage.removeItem('token');
+            window.location.href = 'index.html';
+        });
+
+        document.getElementById('profile-link').addEventListener('click', function() {
+            window.location.href = 'profile.html';
+        });
+
+        document.getElementById('projects-link').addEventListener('click', function() {
+            window.location.href = 'projects.html';
+        });
+    </script>
+</body>
+</html>
