@@ -260,6 +260,50 @@
         .custom-file-upload:hover {
             background-color: #0056b3;
         }
+
+        /* Box styling for sections */
+        .section-box {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .section-box h4 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        /* Sub-tab styles within Queueing tab */
+        .sub-tab {
+            display: flex;
+            justify-content: space-between;
+            background-color: #eee;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .sub-tab button {
+            background-color: inherit;
+            flex: 1;
+            padding: 10px 12px;
+            border: none;
+            outline: none;
+            transition: background-color 0.3s;
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .sub-tab button:hover {
+            background-color: #ccc;
+        }
+
+        .sub-tab button.active {
+            background-color: #007bff;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -355,9 +399,92 @@
                 </div>
             </div>
 
+            <!-- Queueing Tab Content -->
             <div id="Queueing" class="tab-content">
-                <h4>Queueing System</h4>
-                <p>Details about queueing will be added here.</p>
+
+                <!-- Always visible Queue Mode Buttons -->
+                <div class="section-box">
+                    <h4>Select Queue Mode:</h4>
+                    <button class="queue-mode-btn">Off</button>
+                    <button class="queue-mode-btn active">Manual</button>
+                    <button class="queue-mode-btn">Semi-Auto</button>
+                    <button class="queue-mode-btn">Auto</button>
+                </div>
+
+                <!-- Sub-tabs for different queue modes -->
+                <div class="sub-tab">
+                    <button class="sub-tablinks active" onclick="openSubTab(event, 'Manual')">Manual</button>
+                    <button class="sub-tablinks" onclick="openSubTab(event, 'Semi-Auto')">Semi-Auto</button>
+                    <button class="sub-tablinks" onclick="openSubTab(event, 'Auto')">Auto</button>
+                </div>
+
+                <!-- Manual Settings Sub-tab -->
+                <div id="Manual" class="sub-tab-content active">
+                    <div class="section-box">
+                        <h4>Manual Task Trigger</h4>
+                        <div class="scrollable-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Filename</th>
+                                        <th>Quarantine</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="fileList">
+                                    <!-- Dynamically populated with file list -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="section-box">
+                        <h4>Queue Priority Order (Fixed to FIFO)</h4>
+                        <select disabled>
+                            <option>FIFO</option>
+                        </select>
+                    </div>
+
+                    <div class="section-box">
+                        <h4>Per-Task Timeout</h4>
+                        <label>
+                            <input type="checkbox" id="fbff"> Enable FB-FF (Feedback-Feedforward)
+                        </label>
+                        <br>
+                        <label>
+                            Time-Based Processing (in seconds):
+                            <input type="number" min="1" max="60" value="5" id="perTaskTimeout">
+                        </label>
+                        <br>
+                        <label>
+                            Max Tries:
+                            <input type="number" min="1" max="10" value="3" id="maxTries">
+                        </label>
+                    </div>
+
+                    <div class="section-box">
+                        <h4>System/Queue-Wide Timeout</h4>
+                        <label>
+                            Queue-Wide Timeout (in seconds):
+                            <input type="number" min="1" max="3600" value="300" id="queueTimeout">
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Semi-Auto and Auto Sub-tabs Content (kept empty for now) -->
+                <div id="Semi-Auto" class="sub-tab-content">
+                    <div class="section-box">
+                        <h4>Semi-Auto Settings</h4>
+                        <p>Options for criteria-based processing.</p>
+                    </div>
+                </div>
+
+                <div id="Auto" class="sub-tab-content">
+                    <div class="section-box">
+                        <h4>Auto Settings</h4>
+                        <p>Options for fully automated processing.</p>
+                    </div>
+                </div>
             </div>
 
             <div id="AIModel" class="tab-content">
@@ -387,6 +514,20 @@
             }
             document.getElementById(tabName).style.display = 'block';
             evt.currentTarget.className += ' active';
+        }
+
+        function openSubTab(evt, subTabName) {
+            var i, subtabcontent, subtablinks;
+            subtabcontent = document.getElementsByClassName("sub-tab-content");
+            for (i = 0; i < subtabcontent.length; i++) {
+                subtabcontent[i].style.display = "none";  // Hide all sub-tab content
+            }
+            subtablinks = document.getElementsByClassName("sub-tablinks");
+            for (i = 0; i < subtablinks.length; i++) {
+                subtablinks[i].className = subtablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(subTabName).style.display = "block";  // Show the selected sub-tab content
+            evt.currentTarget.className += " active";  // Mark the clicked sub-tab as active
         }
 
         document.getElementById('Input').style.display = 'block';
