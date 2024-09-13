@@ -4,7 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Open Project</title>
-    <link rel="stylesheet" href="open_project.css"> <!-- Linking CSS file -->
+    <link rel="stylesheet" href="open_project.css"> <!-- Linking external CSS file -->
+    <style>
+        /* Manual tab scrollable table */
+        #Manual .scrollable-table {
+            max-height: 200px; /* To allow 5 rows visible before scrolling */
+            overflow-y: auto;
+            width: 100%;
+        }
+
+        /* Manual tab table styles */
+        #Manual table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        #Manual th, #Manual td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #Manual th {
+            background-color: #f2f2f2;
+            text-align: left;
+            cursor: pointer; /* Pointer cursor for clickable sorting */
+        }
+
+        /* Padding for Show Quarantined checkbox */
+        .show-quarantined-checkbox {
+            margin: 10px 0;
+        }
+
+        /* Arrow icons for sorting */
+        .sort-icon {
+            font-size: 12px;
+            margin-left: 5px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -45,14 +81,13 @@
 
             <!-- Tab content -->
             <div id="Input" class="tab-content active">
-                <!-- Custom label to trigger file input -->
+                <!-- Input tab content remains unchanged -->
                 <label class="custom-file-upload">
                     Upload Files
                     <input type="file" id="imageUpload" accept="image/*" multiple>
                 </label>
                 <br><br>
 
-                <!-- Flex container for table, preview, and metadata -->
                 <div class="input-container">
                     <div class="scrollable-table">
                         <table id="imageTable">
@@ -77,75 +112,283 @@
                     <div class="scrollable-metadata">
                         <div class="metadata-header">File Metadata</div>
                         <div id="formattedMetadata">
-                            <div class="metadata-item"><span>Filename:</span> example.png</div>
-                            <div class="metadata-item"><span>Full Path:</span> /path/to/example.png</div>
-                            <div class="metadata-item"><span>MIME Type:</span> image/png</div>
-                            <div class="metadata-item"><span>Created:</span> 2024-09-08</div>
-                            <div class="metadata-item"><span>Size:</span> 1024KB</div>
-                            <div class="metadata-item"><span>Last Modified:</span> 2024-09-10</div>
-                            <div class="metadata-item"><span>Resolution:</span> 1440x838</div>
-                            <div class="metadata-item"><span>Pixel Count:</span> 1,207,200</div>
-                            <div class="metadata-item"><span>Aspect Ratio:</span> 16:9</div>
-                            <div class="metadata-item"><span>Color Depth:</span> RGBA</div>
-                            <div class="metadata-item"><span>Bit Depth:</span> 8-bit</div>
-                            <div class="metadata-item"><span>File Hash:</span> 407f235c8e88b7c0ceaea6467fc1ab46</div>
-                            <div class="metadata-item"><span>Upload Source:</span> web</div>
-                            <div class="metadata-item"><span>Compression Type:</span> none</div>
-                            <div class="metadata-item"><span>Compression Ratio:</span> 1.2:1</div>
+                            <!-- Metadata content dynamically added by JavaScript -->
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Queueing Tab Content -->
-            <!-- Queueing Tab Content -->
             <div id="Queueing" class="tab-content">
-
-                <!-- Always visible Queue Mode Buttons -->
+                <!-- Queue Mode Buttons -->
                 <div class="section-box">
                     <h4>Select Queue Mode:</h4>
                     <button class="queue-mode-btn">Off</button>
                     <button class="queue-mode-btn">Manual</button>
-                    <button class="queue-mode-btn">Semi-Auto</button>
                     <button class="queue-mode-btn active">Auto</button>
+                    <button class="queue-mode-btn">Auto-API</button>
                 </div>
 
                 <!-- Sub-tabs for different queue modes -->
                 <div class="sub-tab">
                     <button class="sub-tablinks" onclick="openSubTab(event, 'Manual')">Manual</button>
-                    <button class="sub-tablinks" onclick="openSubTab(event, 'Semi-Auto')">Semi-Auto</button>
-                    <button class="sub-tablinks" onclick="openSubTab(event, 'Auto')">Auto</button>
+                    <button class="sub-tablinks active" onclick="openSubTab(event, 'Auto')">Auto</button>
+                    <button class="sub-tablinks" onclick="openSubTab(event, 'AutoAPI')">Auto-API</button>
                 </div>
 
-                <!-- Sub-tab content placeholders -->
+                <!-- Sub-tab content for Manual -->
                 <div id="Manual" class="sub-tab-content">
+                    <!-- Section for Selecting Files -->
                     <div class="section-box">
-                        <h4>Manual Settings</h4>
-                        <p>Options for manually selecting files to process.</p>
+                        <h4>Select files for processing</h4>
+
+                        <!-- Show quarantined only checkbox -->
+                        <div class="show-quarantined-checkbox">
+                            <label><input type="checkbox"> Show quarantined only</label>
+                        </div>
+
+                        <!-- Scrollable table of filenames with extra columns -->
+                        <div class="scrollable-table">
+                            <table id="fileSelectionTable">
+                                <thead>
+                                    <tr>
+                                        <th onclick="sortTable(0)">Filename <span class="sort-icon">▲▼</span></th>
+                                        <th onclick="sortTable(1)">Uploaded <span class="sort-icon">▲▼</span></th>
+                                        <th onclick="sortTable(2)">Size (MB) <span class="sort-icon">▲▼</span></th>
+                                        <th onclick="sortTable(3)">Quarantined <span class="sort-icon">▲▼</span></th>
+                                        <th onclick="sortTable(4)">Quarantine Reason <span class="sort-icon">▲▼</span></th>
+                                        <th onclick="sortTable(5)">Select <span class="sort-icon">▲▼</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Placeholder rows with quarantine reasons for some files -->
+                                    <tr>
+                                        <td>example_file_1.txt</td>
+                                        <td>2024-09-12T21:00:21</td>
+                                        <td>2.1</td>
+                                        <td>1</td>
+                                        <td>Invalid file type provided</td>
+                                        <td><input type="checkbox"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>example_file_2.csv</td>
+                                        <td>2024-09-12T21:10:21</td>
+                                        <td>1.4</td>
+                                        <td>2</td>
+                                        <td>File size exceeds the limit</td>
+                                        <td><input type="checkbox"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>example_file_3.jpeg</td>
+                                        <td>2024-09-12T21:20:21</td>
+                                        <td>5.7</td>
+                                        <td>3</td>
+                                        <td>Failed to parse file</td>
+                                        <td><input type="checkbox"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>example_file_4.docx</td>
+                                        <td>2024-09-12T21:30:21</td>
+                                        <td>1.1</td>
+                                        <td>0</td>
+                                        <td></td>
+                                        <td><input type="checkbox"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>example_file_5.pdf</td>
+                                        <td>2024-09-12T21:40:21</td>
+                                        <td>3.5</td>
+                                        <td>0</td>
+                                        <td></td>
+                                        <td><input type="checkbox"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>example_file_6.txt</td>
+                                        <td>2024-09-12T21:50:21</td>
+                                        <td>0.9</td>
+                                        <td>1</td>
+                                        <td>Invalid file type provided</td>
+                                        <td><input type="checkbox"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>example_file_7.csv</td>
+                                        <td>2024-09-12T22:00:21</td>
+                                        <td>4.2</td>
+                                        <td>0</td>
+                                        <td></td>
+                                        <td><input type="checkbox"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>example_file_8.jpeg</td>
+                                        <td>2024-09-12T22:10:21</td>
+                                        <td>6.0</td>
+                                        <td>2</td>
+                                        <td>File size exceeds the limit</td>
+                                        <td><input type="checkbox"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>example_file_9.docx</td>
+                                        <td>2024-09-12T22:20:21</td>
+                                        <td>1.2</td>
+                                        <td>0</td>
+                                        <td></td>
+                                        <td><input type="checkbox"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>example_file_10.pdf</td>
+                                        <td>2024-09-12T22:30:21</td>
+                                        <td>7.3</td>
+                                        <td>3</td>
+                                        <td>Failed to parse file</td>
+                                        <td><input type="checkbox"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Button to process selected files -->
+                        <br>
+                        <button class="process-files-btn">Process Files</button>
+                    </div>
+
+                    <!-- Task Timeout Settings (same as before) -->
+                    <div class="section-box">
+                        <h4>Task Timeout Settings</h4>
+                        <!-- FB-FF at the top with description -->
+                        <label><input type="checkbox"> Enable Feedback-Feedforward (FB-FF) - Moves forward upon receiving processing completion confirmation</label>
+                        <br><br>
+
+                        <!-- Per-File Timeout -->
+                        <label for="per-file-timeout">Per-File Timeout:</label>
+                        <input type="number" id="per-file-timeout" min="1" max="60" value="30"> seconds per file.
+                        <br><br>
+
+                        <!-- System/Queue-Wide Timeout -->
+                        <label for="queue-wide-timeout">System/Queue-Wide Timeout:</label>
+                        <input type="number" id="queue-wide-timeout" min="1" max="3600" value="300"> seconds before halting the queue.
+                        <br><br>
+
+                        <!-- Email Notification on Failure -->
+                        <label><input type="checkbox"> Email notification upon queue failure</label>
                     </div>
                 </div>
 
-                <div id="Semi-Auto" class="sub-tab-content">
+                <!-- Sub-tab content for Auto -->
+                <div id="Auto" class="sub-tab-content active">
                     <div class="section-box">
-                        <h4>Semi-Auto Settings</h4>
-                        <p>Options for criteria-based processing.</p>
+                        <h4>Queue Priority Order</h4>
+                        <select id="auto-dropdown">
+                            <option>FIFO - First In, First Out</option>
+                            <option>LIFO - Last In, First Out</option>
+                            <option>SJF - Shortest Job First</option>
+                            <option>LJF - Longest Job First</option>
+                            <option>EDF - Earliest Deadline First</option>
+                            <option>Fair Share</option>
+                        </select>
+                    </div>
+
+                    <!-- Time-Based Processing Window -->
+                    <div class="section-box">
+                        <h4>Time-Based Processing Window</h4>
+                        <label for="start-time">Start Time:</label>
+                        <input type="time" id="start-time">
+                        <br>
+                        <label for="end-time">End Time:</label>
+                        <input type="time" id="end-time">
+                    </div>
+
+                    <!-- Criteria Settings -->
+                    <div class="section-box">
+                        <h4>Criteria Settings</h4>
+                        <ul>
+                            <!-- Maximum File Size -->
+                            <li>File Size: 
+                                <label for="file-size-max">Maximum size for processing:</label>
+                                <input type="number" id="file-size-max" min="1" placeholder="Enter max size in MB"> MB
+                            </li>
+                            
+                            <!-- File Type with Checkboxes -->
+                            <li>Permissible File Types:</li>
+                            <ul>
+                                <li>Text:
+                                    <label><input type="checkbox" value=".txt"> .txt</label>
+                                    <label><input type="checkbox" value=".csv"> .csv</label>
+                                    <label><input type="checkbox" value=".json"> .json</label>
+                                    <label><input type="checkbox" value=".docx"> .docx</label>
+                                    <label><input type="checkbox" value=".pdf"> .pdf</label>
+                                </li>
+                                <li>Images:
+                                    <label><input type="checkbox" value=".jpg"> .jpg</label>
+                                    <label><input type="checkbox" value=".jpeg"> .jpeg</label>
+                                    <label><input type="checkbox" value=".png"> .png</label>
+                                    <label><input type="checkbox" value=".bmp"> .bmp</label>
+                                    <label><input type="checkbox" value=".gif"> .gif</label>
+                                    <label><input type="checkbox" value=".tiff"> .tiff</label>
+                                    <label><input type="checkbox" value=".webp"> .webp</label>
+                                </li>
+                                <li>Audio:
+                                    <label><input type="checkbox" value=".mp3"> .mp3</label>
+                                    <label><input type="checkbox" value=".wav"> .wav</label>
+                                    <label><input type="checkbox" value=".ogg"> .ogg</label>
+                                    <label><input type="checkbox" value=".flac"> .flac</label>
+                                    <label><input type="checkbox" value=".mp4"> .mp4</label>
+                                    <label><input type="checkbox" value=".webm"> .webm</label>
+                                    <label><input type="checkbox" value=".mpeg"> .mpeg</label>
+                                    <label><input type="checkbox" value=".amr"> .amr</label>
+                                </li>
+                                <li>Video:
+                                    <label><input type="checkbox" value=".mp4"> .mp4</label>
+                                    <label><input type="checkbox" value=".avi"> .avi</label>
+                                    <label><input type="checkbox" value=".mov"> .mov</label>
+                                    <label><input type="checkbox" value=".mkv"> .mkv</label>
+                                </li>
+                            </ul>
+
+                            <!-- Uploaded Date (Modified) -->
+                            <li>Uploaded Date: Process files uploaded after 
+                                <input type="date" id="uploaded-date"> <input type="time" id="uploaded-time">
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Task Timeout Settings -->
+                    <div class="section-box">
+                        <h4>Task Timeout Settings</h4>
+                        <!-- FB-FF at the top with description -->
+                        <label><input type="checkbox"> Enable Feedback-Feedforward (FB-FF) - Moves forward upon receiving processing completion confirmation</label>
+                        <br><br>
+
+                        <!-- Per-File Timeout -->
+                        <label for="per-file-timeout">Per-File Timeout:</label>
+                        <input type="number" id="per-file-timeout" min="1" max="60" value="30"> seconds per file.
+                        <br><br>
+
+                        <!-- System/Queue-Wide Timeout -->
+                        <label for="queue-wide-timeout">System/Queue-Wide Timeout:</label>
+                        <input type="number" id="queue-wide-timeout" min="1" max="3600" value="300"> seconds before halting the queue.
+                        <br><br>
+
+                        <!-- Email Notification on Failure -->
+                        <label><input type="checkbox"> Email notification upon queue failure</label>
                     </div>
                 </div>
 
-                <div id="Auto" class="sub-tab-content">
+                <!-- Sub-tab content for Auto-API -->
+                <div id="AutoAPI" class="sub-tab-content">
                     <div class="section-box">
-                        <h4>Auto Settings</h4>
-                        <p>Options for fully automated processing.</p>
+                        <h4>Auto-API Settings</h4>
+                        <p>No settings available at the moment. In the future, this section will allow the generation of security cryptographic certificates.</p>
                     </div>
                 </div>
             </div>
 
-
+            <!-- AI Model Tab Content -->
             <div id="AIModel" class="tab-content">
                 <h4>AI Model</h4>
                 <p>Details about AI model processing will go here.</p>
             </div>
 
+            <!-- Output Tab Content -->
             <div id="Output" class="tab-content">
                 <h4>Output</h4>
                 <p>Review output files and results.</p>
@@ -153,6 +396,7 @@
         </div>
     </div>
 
-    <script src="open_project.js"></script> <!-- Linking JavaScript file -->
+    <script src="open_project.js"></script> <!-- Linking external JavaScript file -->
+
 </body>
 </html>
