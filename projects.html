@@ -205,7 +205,7 @@
                     document.getElementById('welcome-message').innerText = `Manage your projects, ${data.user.name}.`;
 
                     if (data.user.projects_token) {
-                        document.getElementById('project-number').innerText = `Your projects account number is ${data.user.projects_token}.`;
+                        document.getElementById('project-number').innerText = `Your account number is ${data.user.projects_token}.`;
                     } else {
                         document.getElementById('project-number').innerText = `You do not have a projects account yet. Click "Open Project Account" to create one.`;
                     }

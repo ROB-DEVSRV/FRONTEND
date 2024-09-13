@@ -1,15 +1,59 @@
 function openTab(evt, tabName) {
-    var i, tabcontent, tablinks;
-    tabcontent = document.getElementsByClassName("tab-content");
-    for (i = 0; i < tabcontent.length; i++) {
+    const tabcontent = document.getElementsByClassName("tab-content");
+    const tablinks = document.getElementsByClassName("tablinks");
+    for (let i = 0; i < tabcontent.length; i++) {
         tabcontent[i].style.display = "none";
     }
-    tablinks = document.getElementsByClassName("tablinks");
-    for (i = 0; i < tablinks.length; i++) {
+    for (let i = 0; i < tablinks.length; i++) {
         tablinks[i].className = tablinks[i].className.replace(" active", "");
     }
     document.getElementById(tabName).style.display = 'block';
     evt.currentTarget.className += ' active';
+}
+
+document.getElementById('Overview').style.display = 'block';  // Set Overview as default tab
+
+// Queue Mode Button Handling
+document.querySelectorAll('.queue-mode-btn').forEach(button => {
+    button.addEventListener('click', () => {
+        // Remove active class from all buttons
+        document.querySelectorAll('.queue-mode-btn').forEach(btn => btn.classList.remove('active'));
+        
+        // Add active class to the clicked button
+        button.classList.add('active');
+
+        // Save the selected mode to the project JSON
+        const selectedMode = button.textContent.trim();  // Get mode from button text
+        saveQueueMode(selectedMode);  // Save mode via fetch to backend
+    });
+});
+
+function saveQueueMode(queueMode) {
+    const projectId = new URLSearchParams(window.location.search).get('project_id'); // Getting project_id from URL
+
+    // Note the change here: backticks are used for proper interpolation of projectId
+    fetch(`https://opsensemble.com:5000/projects/project_level/queue_pv?project_id=${projectId}`, {
+        method: 'POST',
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token'),  // Use JWT for authentication
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            project_id: projectId,
+            queue_mode: queueMode // Sending the selected queue mode
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            console.log('Queue mode saved successfully.');
+        } else {
+            console.error('Error saving queue mode:', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
 }
 
 function openSubTab(evt, subTabName) {
@@ -25,8 +69,6 @@ function openSubTab(evt, subTabName) {
     document.getElementById(subTabName).style.display = "block";  // Show the selected sub-tab content
     evt.currentTarget.className += " active";  // Mark the clicked sub-tab as active
 }
-
-document.getElementById('Input').style.display = 'block';
 
 const token = localStorage.getItem('token');
 const urlParams = new URLSearchParams(window.location.search);
@@ -326,3 +368,41 @@ function sortTable(n) {
         }
     }
 }
+
+function fetchProjectJSON() {
+    // Get the projectId dynamically from the URL or another source
+    const urlParams = new URLSearchParams(window.location.search);
+    const projectId = urlParams.get('project_id');  // Fetch the project_id from the URL
+
+    if (!projectId) {
+        document.getElementById('project-json').textContent = "Error: Project ID not found in URL.";
+        return;
+    }
+
+    fetch(`https://opsensemble.com:5000/projects/project_level/overview?project_id=${projectId}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token')  // Use JWT for authentication
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to fetch project JSON');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            const jsonString = JSON.stringify(data.project_data, null, 2);  // Format JSON with indentation
+            document.getElementById('project-json').textContent = jsonString;  // Display JSON
+        } else {
+            document.getElementById('project-json').textContent = "Error: " + data.message;
+        }
+    })
+    .catch(error => {
+        document.getElementById('project-json').textContent = "Error fetching project JSON: " + error.message;
+    });
+}
+
+// Call this function when the Overview tab is loaded
+fetchProjectJSON();

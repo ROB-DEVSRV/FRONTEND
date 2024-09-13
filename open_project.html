@@ -73,14 +73,42 @@
 
             <!-- Tabbed Interface -->
             <div class="tab">
-                <button class="tablinks active" onclick="openTab(event, 'Input')">1. Input</button>
+                <button class="tablinks active" onclick="openTab(event, 'Overview')">Overview</button>
+                <button class="tablinks" onclick="openTab(event, 'Input')">1. Input</button>
                 <button class="tablinks" onclick="openTab(event, 'Queueing')">2. Queueing</button>
                 <button class="tablinks" onclick="openTab(event, 'AIModel')">3. AI Model</button>
                 <button class="tablinks" onclick="openTab(event, 'Output')">4. Output</button>
             </div>
 
             <!-- Tab content -->
-            <div id="Input" class="tab-content active">
+            <div id="Overview" class="tab-content">
+            
+                <!-- Project Description Section -->
+                <div class="section-box">
+                    <h4>Description</h4>
+                    <p>
+                        This project is aimed at exploring advanced methodologies and automation.<br>
+                        It incorporates financial strategies and operational efficiencies.<br>
+                    </p>
+                </div>
+            
+                <!-- Project Balance Section -->
+                <div class="section-box">
+                    <h4>Project Balance</h4>
+                    <p>
+                        Current Project Balance: <strong>£75.51</strong>
+                    </p>
+                </div>
+                
+                <!-- Project JSON Section -->
+                <div class="section-box">
+                    <h4>Project JSON</h4>
+                    <div id="project-json" class="scrollable-json"></div>  <!-- JSON will be rendered here -->
+                </div>
+
+            </div>
+
+            <div id="Input" class="tab-content active" style="display:none;">
                 <!-- Input tab content remains unchanged -->
                 <label class="custom-file-upload">
                     Upload Files
@@ -119,7 +147,7 @@
             </div>
 
             <!-- Queueing Tab Content -->
-            <div id="Queueing" class="tab-content">
+            <div id="Queueing" class="tab-content" style="display:none;">
                 <!-- Queue Mode Buttons -->
                 <div class="section-box">
                     <h4>Select Queue Mode:</h4>
@@ -383,13 +411,13 @@
             </div>
 
             <!-- AI Model Tab Content -->
-            <div id="AIModel" class="tab-content">
+            <div id="AIModel" class="tab-content" style="display:none;">
                 <h4>AI Model</h4>
                 <p>Details about AI model processing will go here.</p>
             </div>
 
             <!-- Output Tab Content -->
-            <div id="Output" class="tab-content">
+            <div id="Output" class="tab-content" style="display:none;">
                 <h4>Output</h4>
                 <p>Review output files and results.</p>
             </div>

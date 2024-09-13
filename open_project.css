@@ -303,3 +303,52 @@ select:disabled {
     background-color: #e0e0e0;
     color: #777;
 }
+
+.scrollable-json {
+    max-height: 300px;  /* Limit the height to 300px */
+    overflow-y: auto;  /* Enable vertical scrolling */
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    padding: 10px;
+    white-space: pre-wrap; /* Preserve whitespace formatting for JSON */
+    font-family: monospace; /* Use a monospace font for JSON */
+}
+
+/* New styles for Queue Mode buttons */
+.queue-mode-btn {
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.queue-mode-btn.off-mode {
+    background-color: #e0e0e0;
+    color: #777;
+}
+
+.queue-mode-btn.manual-mode {
+    background-color: #ffcc00;
+    color: white;
+}
+
+.queue-mode-btn.auto-mode {
+    background-color: #4caf50;
+    color: white;
+}
+
+.queue-mode-btn.api-mode {
+    background-color: #2196f3;
+    color: white;
+}
+
+.queue-mode-btn.active {
+    border: 2px solid #000;
+}
+
+/* Adding hover effect for queue buttons */
+.queue-mode-btn:hover {
+    opacity: 0.8;
+}
