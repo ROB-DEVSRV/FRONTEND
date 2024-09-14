@@ -1,3 +1,4 @@
+// Function to open the selected tab
 function openTab(evt, tabName) {
     const tabcontent = document.getElementsByClassName("tab-content");
     const tablinks = document.getElementsByClassName("tablinks");
@@ -9,6 +10,11 @@ function openTab(evt, tabName) {
     }
     document.getElementById(tabName).style.display = 'block';
     evt.currentTarget.className += ' active';
+
+    // Fetch the queue status only when switching to the Queueing tab
+    if (tabName === 'Queueing') {
+        fetchQueueStatus();
+    }
 }
 
 document.getElementById('Overview').style.display = 'block';  // Set Overview as default tab
@@ -18,7 +24,7 @@ document.querySelectorAll('.queue-mode-btn').forEach(button => {
     button.addEventListener('click', () => {
         // Remove active class from all buttons
         document.querySelectorAll('.queue-mode-btn').forEach(btn => btn.classList.remove('active'));
-        
+
         // Add active class to the clicked button
         button.classList.add('active');
 
@@ -31,7 +37,6 @@ document.querySelectorAll('.queue-mode-btn').forEach(button => {
 function saveQueueMode(queueMode) {
     const projectId = new URLSearchParams(window.location.search).get('project_id'); // Getting project_id from URL
 
-    // Note the change here: backticks are used for proper interpolation of projectId
     fetch(`https://opsensemble.com:5000/projects/project_level/queue_pv?project_id=${projectId}`, {
         method: 'POST',
         headers: {
@@ -47,6 +52,7 @@ function saveQueueMode(queueMode) {
     .then(data => {
         if (data.status === 'success') {
             console.log('Queue mode saved successfully.');
+            updateQueueModeUI(queueMode);
         } else {
             console.error('Error saving queue mode:', data.message);
         }
@@ -56,6 +62,127 @@ function saveQueueMode(queueMode) {
     });
 }
 
+function fetchQueueStatus() {
+    const projectId = new URLSearchParams(window.location.search).get('project_id');
+
+    fetch(`https://opsensemble.com:5000/projects/project_level/queue_pv?project_id=${projectId}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Update the buttons UI based on the queue mode
+            updateQueueModeUI(data.queue_mode);
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching queue status:', error);
+    });
+}
+
+// Function to update button states based on selected queue mode
+function updateQueueModeUI(queueMode) {
+    const buttons = document.querySelectorAll('.queue-mode-btn');
+    
+    // Reset all buttons to the default state (background color, opacity, text color)
+    buttons.forEach(button => {
+        button.classList.remove('active');
+        button.disabled = false;
+        button.style.opacity = "1.0";
+        button.style.color = '#fff'; // Reset text color to default (white)
+    });
+
+    // Apply the logic from the truth table
+    switch (queueMode) {
+        case 'Off':
+            document.getElementById('off-btn').classList.add('active');
+            document.getElementById('off-btn').style.backgroundColor = '#4caf50';
+            document.getElementById('off-btn').style.opacity = "1.0";
+
+            document.getElementById('manual-btn').style.backgroundColor = '#ccc';
+            document.getElementById('manual-btn').style.opacity = "1.0";
+            document.getElementById('manual-btn').style.color = '#333'; // Grey text for disabled manual
+
+            document.getElementById('auto-btn').style.backgroundColor = '#ccc';
+            document.getElementById('auto-btn').style.opacity = "1.0";
+            document.getElementById('auto-btn').style.color = '#333'; // Grey text for disabled auto
+
+            document.getElementById('autoapi-btn').style.backgroundColor = '#ccc';
+            document.getElementById('autoapi-btn').style.opacity = "1.0";
+            document.getElementById('autoapi-btn').style.color = '#333'; // Grey text for disabled auto-api
+            break;
+
+        case 'Manual':
+            document.getElementById('manual-btn').classList.add('active');
+            document.getElementById('manual-btn').style.backgroundColor = '#4caf50';  // Green when active
+            document.getElementById('manual-btn').style.opacity = "1.0";
+
+            document.getElementById('off-btn').style.backgroundColor = '#f44336';
+            document.getElementById('off-btn').style.opacity = "1.0";
+            document.getElementById('off-btn').style.color = '#fff'; // Ensure white text on red
+
+            document.getElementById('auto-btn').style.backgroundColor = '#e0e0e0';
+            document.getElementById('auto-btn').style.opacity = "0.8";
+            document.getElementById('auto-btn').style.color = '#fff'; // Grey text for disabled auto
+            document.getElementById('auto-btn').disabled = true;
+
+            document.getElementById('autoapi-btn').style.backgroundColor = '#e0e0e0';
+            document.getElementById('autoapi-btn').style.opacity = "0.8";
+            document.getElementById('autoapi-btn').style.color = '#fff'; // Grey text for disabled auto-api
+            document.getElementById('autoapi-btn').disabled = true;
+            break;
+
+        case 'Auto':
+            document.getElementById('auto-btn').classList.add('active');
+            document.getElementById('auto-btn').style.backgroundColor = '#4caf50';  // Green when active
+            document.getElementById('auto-btn').style.opacity = "1.0";
+
+            document.getElementById('off-btn').style.backgroundColor = '#f44336';
+            document.getElementById('off-btn').style.opacity = "1.0";
+            document.getElementById('off-btn').style.color = '#fff'; // Ensure white text on red
+
+            document.getElementById('manual-btn').style.backgroundColor = '#e0e0e0';
+            document.getElementById('manual-btn').style.opacity = "0.8";
+            document.getElementById('manual-btn').style.color = '#fff'; // Grey text for disabled manual
+            document.getElementById('manual-btn').disabled = true;
+
+            document.getElementById('autoapi-btn').style.backgroundColor = '#e0e0e0';
+            document.getElementById('autoapi-btn').style.opacity = "0.8";
+            document.getElementById('autoapi-btn').style.color = '#fff'; // Grey text for disabled auto-api
+            document.getElementById('autoapi-btn').disabled = true;
+            break;
+
+        case 'Auto-API':
+            document.getElementById('autoapi-btn').classList.add('active');
+            document.getElementById('autoapi-btn').style.backgroundColor = '#4caf50';  // Green when active
+            document.getElementById('autoapi-btn').style.opacity = "1.0";
+
+            document.getElementById('off-btn').style.backgroundColor = '#f44336';
+            document.getElementById('off-btn').style.opacity = "1.0";
+            document.getElementById('off-btn').style.color = '#fff'; // Ensure white text on red
+
+            document.getElementById('manual-btn').style.backgroundColor = '#e0e0e0';
+            document.getElementById('manual-btn').style.opacity = "0.8";
+            document.getElementById('manual-btn').style.color = '#fff'; // Grey text for disabled manual
+            document.getElementById('manual-btn').disabled = true;
+
+            document.getElementById('auto-btn').style.backgroundColor = '#e0e0e0';
+            document.getElementById('auto-btn').style.opacity = "0.8";
+            document.getElementById('auto-btn').style.color = '#fff'; // Grey text for disabled auto
+            document.getElementById('auto-btn').disabled = true;
+            break;
+    }
+}
+
+// Fetch the initial queue mode when the page loads
+fetchQueueStatus();
+
+
+
+// Function to open sub-tabs within the Queueing tab
 function openSubTab(evt, subTabName) {
     var i, subtabcontent, subtablinks;
     subtabcontent = document.getElementsByClassName("sub-tab-content");
@@ -70,6 +197,7 @@ function openSubTab(evt, subTabName) {
     evt.currentTarget.className += " active";  // Mark the clicked sub-tab as active
 }
 
+// Fetch project details on page load
 const token = localStorage.getItem('token');
 const urlParams = new URLSearchParams(window.location.search);
 const projectId = urlParams.get('project_id');
@@ -404,5 +532,36 @@ function fetchProjectJSON() {
     });
 }
 
-// Call this function when the Overview tab is loaded
-fetchProjectJSON();
+// Auto-refresh the Project JSON every 0.5 seconds
+setInterval(fetchProjectJSON, 500);  // Refresh JSON section every 500ms
+
+// Start polling for queue status updates
+startPollingQueueStatus();
+
+// Polling interval in milliseconds (5 seconds)
+const POLLING_INTERVAL = 5000;
+
+function startPollingQueueStatus() {
+    setInterval(fetchQueueStatus, POLLING_INTERVAL);
+}
+
+function fetchQueueStatus() {
+    const projectId = new URLSearchParams(window.location.search).get('project_id');
+
+    fetch(`https://opsensemble.com:5000/projects/project_level/queue_pv?project_id=${projectId}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            updateQueueModeUI(data.queue_mode);
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching queue status:', error);
+    });
+}
+

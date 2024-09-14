@@ -321,34 +321,30 @@ select:disabled {
     cursor: pointer;
     border-radius: 4px;
     font-size: 14px;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.7s ease;
+    color: white; /* Text color for all buttons */
 }
 
-.queue-mode-btn.off-mode {
-    background-color: #e0e0e0;
-    color: #777;
+/* Queue Mode Buttons */
+.queue-mode-btn {
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: background-color 0.3s ease, opacity 0.3s ease;
 }
 
-.queue-mode-btn.manual-mode {
-    background-color: #ffcc00;
-    color: white;
+.queue-mode-btn:disabled {
+    cursor: not-allowed;
 }
 
-.queue-mode-btn.auto-mode {
-    background-color: #4caf50;
-    color: white;
-}
-
-.queue-mode-btn.api-mode {
-    background-color: #2196f3;
-    color: white;
-}
-
+/* Active button styling */
 .queue-mode-btn.active {
     border: 2px solid #000;
 }
 
-/* Adding hover effect for queue buttons */
-.queue-mode-btn:hover {
+/* Adding hover effect for queue buttons when enabled */
+.queue-mode-btn:not(:disabled):hover {
     opacity: 0.8;
 }

@@ -82,15 +82,15 @@
 
             <!-- Tab content -->
             <div id="Overview" class="tab-content">
-            
-                <!-- Project Description Section -->
+
+                <!-- Operation Mode Section moved from Queueing -->
                 <div class="section-box">
-                    <h4>Description</h4>
-                    <p>
-                        This project is aimed at exploring advanced methodologies and automation.<br>
-                        It incorporates financial strategies and operational efficiencies.<br>
-                    </p>
-                </div>
+                    <h4>Select Operation Mode:</h4>
+                    <button id="off-btn" class="queue-mode-btn">Off</button>
+                    <button id="manual-btn" class="queue-mode-btn">Manual</button>
+                    <button id="auto-btn" class="queue-mode-btn">Auto</button>
+                    <button id="autoapi-btn" class="queue-mode-btn">Auto-API</button>
+                </div> 
             
                 <!-- Project Balance Section -->
                 <div class="section-box">
@@ -103,7 +103,7 @@
                 <!-- Project JSON Section -->
                 <div class="section-box">
                     <h4>Project JSON</h4>
-                    <div id="project-json" class="scrollable-json"></div>  <!-- JSON will be rendered here -->
+                    <div id="project-json" class="scrollable-json"></div>  <!-- JSON will be dynamically updated -->
                 </div>
 
             </div>
@@ -148,14 +148,6 @@
 
             <!-- Queueing Tab Content -->
             <div id="Queueing" class="tab-content" style="display:none;">
-                <!-- Queue Mode Buttons -->
-                <div class="section-box">
-                    <h4>Select Queue Mode:</h4>
-                    <button class="queue-mode-btn">Off</button>
-                    <button class="queue-mode-btn">Manual</button>
-                    <button class="queue-mode-btn active">Auto</button>
-                    <button class="queue-mode-btn">Auto-API</button>
-                </div>
 
                 <!-- Sub-tabs for different queue modes -->
                 <div class="sub-tab">
