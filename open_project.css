@@ -338,7 +338,7 @@ select:disabled {
 .queue-mode-btn:disabled {
     cursor: not-allowed;
 }
-
+ 
 /* Active button styling */
 .queue-mode-btn.active {
     border: 2px solid #000;
@@ -347,4 +347,37 @@ select:disabled {
 /* Adding hover effect for queue buttons when enabled */
 .queue-mode-btn:not(:disabled):hover {
     opacity: 0.8;
+}
+
+/* Styles for the new metadata sections */
+.metadata-sections {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;  /* Space between the table and metadata sections */
+}
+
+.metadata-section {
+    flex: 1;
+    margin-right: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    max-height: 300px; /* Adjust height as needed */
+    overflow-y: auto;
+}
+
+/* Remove margin for the last section */
+.metadata-section:last-child {
+    margin-right: 0;
+}
+
+.metadata-header {
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-size: 14px;
+    text-align: left;
+    background-color: #f4f4f4;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
 }

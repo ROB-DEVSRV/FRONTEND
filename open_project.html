@@ -91,7 +91,7 @@
                     <button id="auto-btn" class="queue-mode-btn">Auto</button>
                     <button id="autoapi-btn" class="queue-mode-btn">Auto-API</button>
                 </div> 
-            
+             
                 <!-- Project Balance Section -->
                 <div class="section-box">
                     <h4>Project Balance</h4>
@@ -130,21 +130,40 @@
                             </tbody>
                         </table>
                     </div>
-
-                    <!-- Preview Area -->
+                
+                    <!-- Preview Area remains as is -->
                     <div id="imagePreview">
                         <img id="previewImage" src="" alt="Image Preview">
                     </div>
-
-                    <!-- Scrollable metadata container -->
-                    <div class="scrollable-metadata">
+                </div>
+                
+                <!-- New metadata sections -->
+                <div class="metadata-sections">
+                    <!-- File Metadata section -->
+                    <div class="metadata-section">
                         <div class="metadata-header">File Metadata</div>
                         <div id="formattedMetadata">
                             <!-- Metadata content dynamically added by JavaScript -->
                         </div>
                     </div>
+                
+                    <!-- Project Processing Meta section (empty for now) -->
+                    <div class="metadata-section">
+                        <div class="metadata-header">Project Processing Meta</div>
+                        <div id="projectProcessingMeta">
+                            <!-- Empty for now -->
+                        </div>
+                    </div>
+                
+                    <!-- Project AI Meta section (empty for now) -->
+                    <div class="metadata-section">
+                        <div class="metadata-header">Project AI Meta</div>
+                        <div id="projectAiMeta">
+                            <!-- Empty for now -->
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </div>    
 
             <!-- Queueing Tab Content -->
             <div id="Queueing" class="tab-content" style="display:none;">
@@ -413,6 +432,8 @@
                 <h4>Output</h4>
                 <p>Review output files and results.</p>
             </div>
+
+            
         </div>
     </div>
 

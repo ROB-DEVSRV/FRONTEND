@@ -1,21 +1,30 @@
 // Function to open the selected tab
 function openTab(evt, tabName) {
+    console.log("Opening tab: ", tabName);  // Check which tab is being opened
+
     const tabcontent = document.getElementsByClassName("tab-content");
     const tablinks = document.getElementsByClassName("tablinks");
+    
+    // Hide all tab content
     for (let i = 0; i < tabcontent.length; i++) {
+        console.log("Hiding tab content: ", tabcontent[i].id);  // Debug each tab being hidden
         tabcontent[i].style.display = "none";
     }
+    
+    // Remove the active class from all buttons
     for (let i = 0; i < tablinks.length; i++) {
         tablinks[i].className = tablinks[i].className.replace(" active", "");
     }
-    document.getElementById(tabName).style.display = 'block';
-    evt.currentTarget.className += ' active';
-
-    // Fetch the queue status only when switching to the Queueing tab
-    if (tabName === 'Queueing') {
-        fetchQueueStatus();
-    }
+    
+    // Show the selected tab's content
+    const selectedTab = document.getElementById(tabName);
+    console.log("Showing tab: ", selectedTab.id);  // Confirm the correct tab is shown
+    selectedTab.style.display = 'block';
+    
+    // Add the active class to the clicked button
+    evt.currentTarget.className += " active";
 }
+
 
 document.getElementById('Overview').style.display = 'block';  // Set Overview as default tab
 
