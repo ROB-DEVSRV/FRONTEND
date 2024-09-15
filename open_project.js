@@ -253,7 +253,8 @@ if (!token) {
                 const actionsCell = document.createElement('td');
 
                 filenameCell.style.cursor = 'pointer';
-                filenameCell.textContent = file;
+                filenameCell.textContent = file.split(/[/\\]/).pop();  // Handles both forward and backslashes
+
 
                 filenameCell.addEventListener('click', () => {
                     previewImageAndMetadata(file);
@@ -332,7 +333,7 @@ function updateFileList() {
                 const actionsCell = document.createElement('td');
 
                 filenameCell.style.cursor = 'pointer';
-                filenameCell.textContent = file;
+                filenameCell.textContent = file.split(/[/\\]/).pop();  // Handles both forward and backslashes
                 filenameCell.addEventListener('click', () => previewImageAndMetadata(file));
 
                 const trashIcon = document.createElement('span');

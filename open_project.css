@@ -324,7 +324,7 @@ select:disabled {
     transition: background-color 0.7s ease;
     color: white; /* Text color for all buttons */
 }
-
+ 
 /* Queue Mode Buttons */
 .queue-mode-btn {
     padding: 10px;
@@ -381,3 +381,8 @@ select:disabled {
     padding: 10px;
     border-bottom: 1px solid #ccc;
 }
+
+.selected-file {
+    font-weight: bold;
+}
+
