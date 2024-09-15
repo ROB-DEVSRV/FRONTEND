@@ -122,7 +122,11 @@
                             <thead>
                                 <tr>
                                     <th>Filename</th>
-                                    <th>Actions</th>
+                                    <th>Uploaded</th>
+                                    <th>Size (MB)</th>
+                                    <th>Quarantined</th>
+                                    <th>Select</th>
+                                    <th>Actions</th> <!-- Bin icon -->
                                 </tr>
                             </thead>
                             <tbody>
@@ -131,9 +135,9 @@
                         </table>
                     </div>
                 
-                    <!-- Preview Area remains as is -->
-                    <div id="imagePreview">
-                        <img id="previewImage" src="" alt="Image Preview">
+                    <!-- Preview Area (adjusted for smaller size) -->
+                    <div id="imagePreview" style="width: 25%; max-height: 200px;">
+                        <img id="previewImage" src="" alt="Image Preview" style="max-width: 100%; max-height: 100%;">
                     </div>
                 </div>
                 

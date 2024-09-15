@@ -4,26 +4,39 @@ function openTab(evt, tabName) {
 
     const tabcontent = document.getElementsByClassName("tab-content");
     const tablinks = document.getElementsByClassName("tablinks");
-    
+
     // Hide all tab content
     for (let i = 0; i < tabcontent.length; i++) {
         console.log("Hiding tab content: ", tabcontent[i].id);  // Debug each tab being hidden
         tabcontent[i].style.display = "none";
     }
-    
+
     // Remove the active class from all buttons
     for (let i = 0; i < tablinks.length; i++) {
         tablinks[i].className = tablinks[i].className.replace(" active", "");
     }
-    
+
     // Show the selected tab's content
     const selectedTab = document.getElementById(tabName);
     console.log("Showing tab: ", selectedTab.id);  // Confirm the correct tab is shown
     selectedTab.style.display = 'block';
-    
+
     // Add the active class to the clicked button
     evt.currentTarget.className += " active";
+
+    // If the Input tab is opened, update the file list
+    if (tabName === 'Input') {
+        console.log("Input tab opened, updating file list");
+        updateFileList();  // Update the file list whenever the Input tab is opened
+    }
 }
+
+// Call updateFileList when the page loads for the first time
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("Page loaded, calling updateFileList");
+    updateFileList();  // Ensure that file list is populated on page load
+});
+
 
 
 document.getElementById('Overview').style.display = 'block';  // Set Overview as default tab
@@ -315,27 +328,64 @@ if (!token) {
 }
 
 function updateFileList() {
+    console.log("updateFileList is running"); // To check if the function is being called
+
     fetch(`https://opsensemble.com:5000/projects/manage_input_files?project_id=${projectId}`, {
         method: 'GET',
         headers: {
             'Authorization': 'Bearer ' + token
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Fetch response status:', response.status);  // Log the status of the fetch response
+        return response.json();
+    })
     .then(data => {
+        console.log('Data fetched:', data);  // Log the fetched data to see if it's correct
+
         const imageTableBody = document.querySelector('#imageTable tbody');
-        imageTableBody.innerHTML = '';
+        imageTableBody.innerHTML = ''; // Clear existing rows
 
         data.files.forEach((file) => {
+            console.log('Processing file:', file);  // Log each file being processed
+
             if (!file.endsWith('.json') && !file.endsWith('.keep')) {
                 const row = document.createElement('tr');
+
+                // Filename column
                 const filenameCell = document.createElement('td');
-                const actionsCell = document.createElement('td');
-
                 filenameCell.style.cursor = 'pointer';
-                filenameCell.textContent = file.split(/[/\\]/).pop();  // Handles both forward and backslashes
+                filenameCell.textContent = file.split(/[/\\]/).pop();  // Extract filename
                 filenameCell.addEventListener('click', () => previewImageAndMetadata(file));
+                row.appendChild(filenameCell);
 
+                // Add a log to check if static values are being populated
+                console.log('Adding static data for uploaded and size fields');
+
+                // Uploaded column (for now, using static data as placeholder)
+                const uploadedCell = document.createElement('td');
+                uploadedCell.textContent = '2024-09-12T21:00:21';  // Example uploaded date (replace with actual data)
+                row.appendChild(uploadedCell);
+
+                // Size (MB) column (using static data as placeholder)
+                const sizeCell = document.createElement('td');
+                sizeCell.textContent = '1.2';  // Example file size in MB (replace with actual data)
+                row.appendChild(sizeCell);
+
+                // Quarantined column (for now, static data as placeholder)
+                const quarantinedCell = document.createElement('td');
+                quarantinedCell.textContent = '0';  // Example quarantine status (replace with actual data)
+                row.appendChild(quarantinedCell);
+
+                // Select column with checkbox
+                const selectCell = document.createElement('td');
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                selectCell.appendChild(checkbox);
+                row.appendChild(selectCell);
+
+                // Actions column (bin icon)
+                const actionsCell = document.createElement('td');
                 const trashIcon = document.createElement('span');
                 trashIcon.innerHTML = '🗑️';
                 trashIcon.style.cursor = 'pointer';
@@ -343,15 +393,21 @@ function updateFileList() {
                     const folderName = getFolderName(file);
                     deleteFolder(folderName);
                 });
-
                 actionsCell.appendChild(trashIcon);
-                row.appendChild(filenameCell);
                 row.appendChild(actionsCell);
+
+                // Append the row to the table body
                 imageTableBody.appendChild(row);
             }
         });
+    })
+    .catch(error => {
+        console.error('Error fetching files:', error);  // Log errors during the fetch request
     });
 }
+
+
+
 
 function highlightSelectedFile(row) {
     const rows = document.querySelectorAll('#imageTable tr');
@@ -546,7 +602,7 @@ function fetchProjectJSON() {
 setInterval(fetchProjectJSON, 500);  // Refresh JSON section every 500ms
 
 // Start polling for queue status updates
-startPollingQueueStatus();
+//startPollingQueueStatus();
 
 // Polling interval in milliseconds (5 seconds)
 const POLLING_INTERVAL = 5000;
