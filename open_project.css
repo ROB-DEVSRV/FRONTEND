@@ -233,22 +233,6 @@ body {
     display: none;
 }
 
-/* Custom button for file input */
-.custom-file-upload {
-    padding: 10px 15px;
-    font-size: 16px;
-    cursor: pointer;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    display: inline-block;
-}
-
-.custom-file-upload:hover {
-    background-color: #0056b3;
-}
-
 /* Box styling for sections */
 .section-box {
     border: 1px solid #ccc;
@@ -387,3 +371,103 @@ select:disabled {
     font-weight: bold;
 }
 
+th.sorted-asc .sort-icon {
+    transform: rotate(180deg); /* Rotate the arrow up */
+}
+
+th.sorted-desc .sort-icon {
+    transform: rotate(0deg); /* Arrow down */
+}
+
+/* Input Tab: Container for buttons */
+#Input .button-container {
+    display: flex;
+    justify-content: flex-start; /* Align buttons to the left */
+    align-items: center; /* Vertically center the buttons */
+    gap: 5px; /* Space between buttons */
+    margin-top: 10px; /* Adjust space above buttons */
+    margin-bottom: 10px; /* Space below buttons */
+}
+
+/* Input Tab: Upload Files button styling */
+#Input .custom-file-upload {
+    padding: 10px 20px; /* Padding for consistent button sizing */
+    font-size: 16px;
+    background-color: #007bff; /* Blue color for Upload Files button */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center; /* Ensure centered text */
+}
+
+#Input .custom-file-upload:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* Input Tab: Button styling for Stop (Off) and Process Files */
+#Input .input-mode-btn {
+    padding: 10px 30px; /* Increase padding for more clickable area */
+    font-size: 16px;
+    background-color: #007bff; /* Default blue color for buttons */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center; /* Ensure centered text */
+}
+
+#Input .input-mode-btn.active {
+    background-color: #4caf50; /* Green color for active state */
+    border: 2px solid black; /* Solid black border for active state */
+}
+
+#Input .input-mode-btn:disabled {
+    background-color: #ccc; /* Grey for disabled buttons */
+    color: #333; /* Grey text for disabled state */
+    cursor: not-allowed; /* Not-allowed cursor for disabled buttons */
+}
+
+/* Input Tab: Specific styling for Stop button (Off) */
+#Input .stop-processing-files-btn {
+    background-color: #f44336; /* Red for Stop button */
+}
+
+#Input .stop-processing-files-btn.active {
+    background-color: #4caf50; /* Green when active (Off selected) */
+}
+
+#Input .stop-processing-files-btn:hover {
+    background-color: #c82333; /* Darker red on hover for Stop button */
+}
+
+/* Input Tab: Specific styling for Process Files button */
+#Input .process-files-btn {
+    background-color: #ccc; /* Grey by default when Off is active */
+    color: #333; /* Grey text when disabled */
+}
+
+#Input .process-files-btn.active {
+    background-color: #4caf50; /* Green when Process Files is active */
+    border: 2px solid black; /* Solid black border for active state */
+}
+
+#Input .process-files-btn:hover {
+    background-color: #0056b3; /* Darker blue on hover for Process Files button */
+}
+
+/* Styling for the Manual Processing section to match the border and layout */
+#manual-processing-container {
+    border: 1px solid #ccc; /* Light grey border */
+    border-radius: 8px; /* Rounded corners */
+    padding: 10px 20px; /* Padding inside the box */
+    margin-bottom: 20px; /* Space below the section */
+    background-color: white; /* Ensure the background is white */
+}
+
+/* Match the font style for the title "Manual Processing selection" */
+#manual-processing-container h4 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}

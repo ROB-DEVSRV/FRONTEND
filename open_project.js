@@ -37,8 +37,6 @@ document.addEventListener('DOMContentLoaded', function() {
     updateFileList();  // Ensure that file list is populated on page load
 });
 
-
-
 document.getElementById('Overview').style.display = 'block';  // Set Overview as default tab
 
 // Queue Mode Button Handling
@@ -631,3 +629,53 @@ function fetchQueueStatus() {
     });
 }
 
+// Function to handle Input tab buttons
+document.querySelectorAll('#Input .input-mode-btn').forEach(button => {
+    button.addEventListener('click', () => {
+        // Remove active class from all buttons in the Input tab
+        document.querySelectorAll('#Input .input-mode-btn').forEach(btn => btn.classList.remove('active'));
+
+        // Add active class to the clicked button
+        button.classList.add('active');
+
+        // Get the selected mode (either 'Off' or 'Process Files')
+        const selectedMode = button.textContent.trim();
+        
+        // Update the Input tab UI based on the selected mode
+        updateInputModeUI(selectedMode);
+    });
+});
+
+// Function to update the UI for Input tab buttons
+function updateInputModeUI(inputMode) {
+    // Get the buttons in the Input tab
+    const offButton = document.querySelector('#Input .stop-processing-files-btn');
+    const processFilesButton = document.querySelector('#Input .process-files-btn');
+
+    // Reset buttons to default state
+    offButton.classList.remove('active');
+    processFilesButton.classList.remove('active');
+    offButton.style.border = 'none';
+    processFilesButton.style.border = 'none';
+
+    // Apply the logic based on the selected mode
+    if (inputMode === 'Off') {
+        // Off state (Green Off, Grey Process Files)
+        offButton.classList.add('active');
+        offButton.style.backgroundColor = '#4caf50'; // Green for active 'Off'
+        offButton.style.color = '#fff'; // White text for active 'Off'
+        offButton.style.border = '2px solid black'; // Solid border for active button
+
+        processFilesButton.style.backgroundColor = '#ccc'; // Grey for inactive Process Files
+        processFilesButton.style.color = '#333'; // Grey text for inactive Process Files
+    } else if (inputMode === 'Process Files') {
+        // On state (Red Off, Green Process Files)
+        processFilesButton.classList.add('active');
+        processFilesButton.style.backgroundColor = '#4caf50'; // Green for active 'Process Files'
+        processFilesButton.style.color = '#fff'; // White text for active 'Process Files'
+        processFilesButton.style.border = '2px solid black'; // Solid border for active button
+
+        offButton.style.backgroundColor = '#f44336'; // Red for 'Off'
+        offButton.style.color = '#fff'; // White text for Off
+    }
+}
