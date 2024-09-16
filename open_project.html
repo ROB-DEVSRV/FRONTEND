@@ -107,7 +107,7 @@
                 </div>
 
             </div>
-
+ 
             <div id="Input" class="tab-content" style="display:none;">
                 <!-- Input tab content remains unchanged -->
                 <div id="manual-processing-container" class="section-box">
@@ -122,23 +122,40 @@
             
                 <!-- Show quarantined only checkbox (copied from Queueing tab) -->
                 <div class="show-quarantined-checkbox">
-                    <label><input type="checkbox" id="showQuarantinedInput"> Show quarantined only</label>
+                    <label><input type="checkbox" id="showQuarantinedInput"> Show failed only</label>
                 </div>
-
+                
                 <div class="input-container">
                     <!-- Scrollable table with the sorting functionality -->
                     <div class="scrollable-table">
                         <table id="imageTable">
                             <thead>
                                 <tr>
-                                    <th onclick="sortTable('filename')">Filename <span class="sort-icon">▲▼</span></th>
-                                    <th onclick="sortTable('uploaded')">Uploaded <span class="sort-icon">▲▼</span></th>
-                                    <th onclick="sortTable('size')">Size (MB) <span class="sort-icon">▲▼</span></th>
-                                    <th onclick="sortTable('failed')">Failed <span class="sort-icon">▲▼</span></th>
+                                    <th data-column="filename">
+                                        Filename
+                                        <span class="sort-icon asc">▲</span>
+                                        <span class="sort-icon desc">▼</span>
+                                    </th>
+                                    <th data-column="uploaded">
+                                        Uploaded
+                                        <span class="sort-icon asc">▲</span>
+                                        <span class="sort-icon desc">▼</span>
+                                    </th>
+                                    <th data-column="size">
+                                        Size
+                                        <span class="sort-icon asc">▲</span>
+                                        <span class="sort-icon desc">▼</span>
+                                    </th>
+                                    <th data-column="failed">
+                                        Failed
+                                        <span class="sort-icon asc">▲</span>
+                                        <span class="sort-icon desc">▼</span>
+                                    </th>
                                     <th>Select</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
+                                                     
                             <tbody>
                                 <!-- Dynamically filled with JavaScript -->
                             </tbody>

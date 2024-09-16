@@ -358,8 +358,59 @@ if (!token) {
     });
 }
 
+// Function to format the date for display (removing the milliseconds and Z)
+function formatDateForDisplay(fullDate) {
+    const dateObject = new Date(fullDate);  // Convert the full ISO date string to a Date object
+    const formattedDate = dateObject.toISOString().substring(0, 19).replace('T', ' ');  // Format to 'YYYY-MM-DD HH:MM:SS'
+    return formattedDate;
+}
+
+// Function to update the table rows with the simplified date for display
+function updateTableWithFormattedDates() {
+    const table = document.getElementById("imageTable");
+    const rows = Array.from(table.querySelectorAll("tbody tr"));
+    
+    rows.forEach(row => {
+        const uploadedColumnIndex = getColumnIndex('uploaded');  // Get the index of the 'uploaded' column
+        const uploadedCell = row.querySelector(`td:nth-child(${uploadedColumnIndex})`);
+        const fullDate = uploadedCell.getAttribute('data-full-date');  // Get the full date from the 'data-full-date' attribute
+
+        if (fullDate) {
+            // Format and update the cell with the shorter display version of the date
+            uploadedCell.textContent = formatDateForDisplay(fullDate);
+        }
+    });
+}
+
+
+// Helper function to format the date for display (removing the milliseconds and Z)
+function formatDateForDisplay(fullDate) {
+    const dateObject = new Date(fullDate);  // Convert the full ISO date string to a Date object
+    const formattedDate = dateObject.toISOString().substring(0, 19).replace('T', ' ');  // Format to 'YYYY-MM-DD HH:MM:SS'
+    return formattedDate;
+}
+
+// Function to fetch the metadata for each file
+function fetchMetadata(file) {
+    return fetch(`https://opsensemble.com:5000/projects/manage_input_files?project_id=${projectId}&file_name=${file}.json`, {
+        method: 'GET',
+        headers: {
+            'Authorization': 'Bearer ' + token
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            return JSON.parse(data.metadata);
+        } else {
+            throw new Error('Metadata not found for file: ' + file);
+        }
+    });
+}
+
+// Full function to populate the table with files and metadata
 function updateFileList() {
-    console.log("updateFileList is running"); // To check if the function is being called
+    console.log("updateFileList is running");
 
     fetch(`https://opsensemble.com:5000/projects/manage_input_files?project_id=${projectId}`, {
         method: 'GET',
@@ -368,18 +419,16 @@ function updateFileList() {
         }
     })
     .then(response => {
-        console.log('Fetch response status:', response.status);  // Log the status of the fetch response
+        console.log('Fetch response status:', response.status);
         return response.json();
     })
     .then(data => {
-        console.log('Data fetched:', data);  // Log the fetched data to see if it's correct
+        console.log('Data fetched:', data);
 
         const imageTableBody = document.querySelector('#imageTable tbody');
         imageTableBody.innerHTML = ''; // Clear existing rows
 
         data.files.forEach((file) => {
-            console.log('Processing file:', file);  // Log each file being processed
-
             if (!file.endsWith('.json') && !file.endsWith('.keep')) {
                 const row = document.createElement('tr');
 
@@ -390,52 +439,57 @@ function updateFileList() {
                 filenameCell.addEventListener('click', () => previewImageAndMetadata(file));
                 row.appendChild(filenameCell);
 
-                // Add a log to check if static values are being populated
-                console.log('Adding static data for uploaded and size fields');
+                // Fetch Metadata for each file
+                fetchMetadata(file).then(metadata => {
+                    // Uploaded column with full date for sorting and formatted date for display
+                    const uploadedCell = document.createElement('td');
+                    uploadedCell.setAttribute('data-full-date', metadata.upload_time);  // Store full ISO date for sorting
+                    uploadedCell.textContent = formatDateForDisplay(metadata.upload_time);  // Display formatted date
+                    row.appendChild(uploadedCell);
 
-                // Uploaded column (for now, using static data as placeholder)
-                const uploadedCell = document.createElement('td');
-                uploadedCell.textContent = '2024-09-12T21:00:21';  // Example uploaded date (replace with actual data)
-                row.appendChild(uploadedCell);
+                    // Size (MB) column
+                    const sizeCell = document.createElement('td');
+                    sizeCell.textContent = metadata.size || 'Unknown';  // Display the file size
+                    sizeCell.setAttribute('data-size-bytes', metadata.size_bytes);  // Add the size in bytes for sorting
+                    row.appendChild(sizeCell);
 
-                // Size (MB) column (using static data as placeholder)
-                const sizeCell = document.createElement('td');
-                sizeCell.textContent = '1.2';  // Example file size in MB (replace with actual data)
-                row.appendChild(sizeCell);
+                    // Failed column
+                    const failedCell = document.createElement('td');
+                    failedCell.textContent = metadata.failed || '0';  // Display failure status
+                    row.appendChild(failedCell);
 
-                // Quarantined column (for now, static data as placeholder)
-                const quarantinedCell = document.createElement('td');
-                quarantinedCell.textContent = '0';  // Example quarantine status (replace with actual data)
-                row.appendChild(quarantinedCell);
+                    // Select column with a checkbox
+                    const selectCell = document.createElement('td');
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    selectCell.appendChild(checkbox);
+                    row.appendChild(selectCell);
 
-                // Select column with checkbox
-                const selectCell = document.createElement('td');
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                selectCell.appendChild(checkbox);
-                row.appendChild(selectCell);
+                    // Actions column (bin icon)
+                    const actionsCell = document.createElement('td');
+                    const trashIcon = document.createElement('span');
+                    trashIcon.innerHTML = '🗑️';
+                    trashIcon.style.cursor = 'pointer';
+                    trashIcon.addEventListener('click', () => {
+                        const folderName = getFolderName(file);
+                        deleteFolder(folderName);
+                    });
+                    actionsCell.appendChild(trashIcon);
+                    row.appendChild(actionsCell);
 
-                // Actions column (bin icon)
-                const actionsCell = document.createElement('td');
-                const trashIcon = document.createElement('span');
-                trashIcon.innerHTML = '🗑️';
-                trashIcon.style.cursor = 'pointer';
-                trashIcon.addEventListener('click', () => {
-                    const folderName = getFolderName(file);
-                    deleteFolder(folderName);
+                    // Append the row to the table body
+                    imageTableBody.appendChild(row);
+                }).catch(error => {
+                    console.error('Error fetching metadata:', error);
                 });
-                actionsCell.appendChild(trashIcon);
-                row.appendChild(actionsCell);
-
-                // Append the row to the table body
-                imageTableBody.appendChild(row);
             }
         });
     })
     .catch(error => {
-        console.error('Error fetching files:', error);  // Log errors during the fetch request
+        console.error('Error fetching files:', error);
     });
 }
+
 
 
 
@@ -553,46 +607,160 @@ function formatMetadata(metadata) {
     `;
 }
 
-function sortTable(n) {
-    var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-    table = document.getElementById("fileSelectionTable");
-    switching = true;
-    dir = "asc"; 
 
-    while (switching) {
-        switching = false;
-        rows = table.rows;
+// Event listener for the "Show quarantined only" checkbox
+document.getElementById('showQuarantinedInput').addEventListener('change', function() {
+    const showQuarantinedOnly = this.checked;
+    filterQuarantinedFiles(showQuarantinedOnly);
+});
 
-        for (i = 1; i < (rows.length - 1); i++) {
-            shouldSwitch = false;
+// Function to filter rows based on the "Failed" column value
+function filterQuarantinedFiles(showQuarantinedOnly) {
+    const table = document.getElementById("imageTable");
+    const rows = Array.from(table.querySelectorAll("tbody tr"));
 
-            x = rows[i].getElementsByTagName("TD")[n];
-            y = rows[i + 1].getElementsByTagName("TD")[n];
+    rows.forEach(row => {
+        const failedColumnIndex = getColumnIndex('failed');  // Reusing getColumnIndex function
+        const failedValue = parseInt(row.querySelector(`td:nth-child(${failedColumnIndex})`).textContent.trim(), 10);
 
-            if (dir == "asc") {
-                if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-                    shouldSwitch = true;
-                    break;
-                }
-            } else if (dir == "desc") {
-                if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-                    shouldSwitch = true;
-                    break;
-                }
+        if (showQuarantinedOnly) {
+            // Show rows where 'Failed' value is greater than 0
+            if (failedValue > 0) {
+                row.style.display = "";  // Show the row
+            } else {
+                row.style.display = "none";  // Hide the row
             }
-        }
-        if (shouldSwitch) {
-            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-            switching = true;
-            switchcount ++;
         } else {
-            if (switchcount == 0 && dir == "asc") {
-                dir = "desc";
-                switching = true;
-            }
+            // If the checkbox is unchecked, show all rows
+            row.style.display = "";  // Show all rows
         }
+    });
+}
+
+
+// To track current sort direction for each column
+let sortDirection = {
+    filename: 'none',  // 'asc' or 'desc'
+    uploaded: 'none',
+    size: 'none',
+    failed: 'none'
+};
+
+// Function to sort the table based on the column and direction (asc/desc)
+function sortTable(column, direction) {
+    const table = document.getElementById("imageTable");
+    const tbody = table.querySelector("tbody");
+
+    const rows = Array.from(tbody.querySelectorAll("tr"));
+
+    const sortedRows = rows.sort((a, b) => {
+        const aValue = getCellValue(a, column);
+        const bValue = getCellValue(b, column);
+
+        // Sorting logic for each specific column type
+        if (column === 'uploaded') {
+            // Sort by date (full date)
+            const fullDateA = a.querySelector(`td:nth-child(${getColumnIndex('uploaded')})`).getAttribute('data-full-date');
+            const fullDateB = b.querySelector(`td:nth-child(${getColumnIndex('uploaded')})`).getAttribute('data-full-date');
+
+            const dateA = new Date(fullDateA);
+            const dateB = new Date(fullDateB);
+
+            return direction === 'asc' ? dateA - dateB : dateB - dateA;
+        } else if (column === 'size') {
+            // Sort by file size in bytes (stored in data-size-bytes attribute)
+            const sizeA = parseInt(a.querySelector(`td:nth-child(${getColumnIndex('size')})`).getAttribute('data-size-bytes'), 10);
+            const sizeB = parseInt(b.querySelector(`td:nth-child(${getColumnIndex('size')})`).getAttribute('data-size-bytes'), 10);
+
+            return direction === 'asc' ? sizeA - sizeB : sizeB - sizeA;
+        } else if (column === 'filename') {
+            // Sort by filename alphabetically
+            return direction === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+        } else if (column === 'failed') {
+            // Sort by failure count (numeric)
+            const failedA = parseInt(aValue, 10);
+            const failedB = parseInt(bValue, 10);
+
+            return direction === 'asc' ? failedA - failedB : failedB - failedA;
+        }
+    });
+
+    // Re-append sorted rows to the table body
+    sortedRows.forEach(row => tbody.appendChild(row));
+
+    // Update sort icons
+    updateSortIcons(column, direction);
+}
+
+
+// Helper function to extract the correct value for sorting from the row
+function getCellValue(row, column) {
+    const columnIndex = getColumnIndex(column);  // Get the correct column index
+    const cell = row.querySelector(`td:nth-child(${columnIndex})`);
+
+    if (column === 'size') {
+        // Return the size in bytes for the size column, which is stored in the data-size-bytes attribute
+        return parseInt(cell.getAttribute('data-size-bytes'), 10) || 0;
+    }
+
+    if (column === 'uploaded') {
+        // Return the full date string for sorting
+        return cell.getAttribute('data-full-date') || '';
+    }
+
+    // Default case: return the cell's text content for other columns (like filename and failed)
+    return cell.textContent.trim().toLowerCase();
+}
+
+
+// Helper function to extract the byte value from the size string
+function extractBytes(sizeText) {
+    const match = sizeText.match(/\((\d+)\sbytes\)/);  // Extract number inside parentheses
+    return match ? parseInt(match[1]) : 0;  // Return the extracted number or 0 if not found
+}
+
+// Helper function to get the column index based on the column name
+function getColumnIndex(column) {
+    switch (column) {
+        case 'filename':
+            return 1;
+        case 'uploaded':
+            return 2;
+        case 'size':
+            return 3;
+        case 'failed':
+            return 4;
+        default:
+            return 1;
     }
 }
+
+// Function to update the sort icons based on the current sort direction
+function updateSortIcons(column, direction) {
+    // Reset all icons to their default state
+    document.querySelectorAll('.sort-icon').forEach(icon => {
+        icon.classList.remove('active');
+    });
+
+    // Activate the relevant icon (based on direction)
+    const activeIcon = document.querySelector(`th[data-column="${column}"] .sort-icon.${direction}`);
+    if (activeIcon) {
+        activeIcon.classList.add('active');  // Add the active class to the sorted direction
+    }
+}
+
+// Add event listeners to the sort icons for sorting
+document.querySelectorAll('.sort-icon').forEach(icon => {
+    icon.addEventListener('click', () => {
+        const column = icon.closest('th').getAttribute('data-column');
+        const direction = icon.classList.contains('asc') ? 'asc' : 'desc';
+        sortTable(column, direction);
+    });
+});
+
+
+
+
 
 // Fetch the project JSON and ensure queue_mode and manual_mode are separate
 function fetchProjectJSON() {

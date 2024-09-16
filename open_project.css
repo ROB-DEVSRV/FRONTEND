@@ -379,6 +379,23 @@ th.sorted-desc .sort-icon {
     transform: rotate(0deg); /* Arrow down */
 }
 
+/* Sort icon styles */
+th .sort-icon {
+    font-size: 12px;
+    margin-left: 5px;
+    cursor: pointer;  /* Hand cursor for clickable icons */
+    color: #000;  /* Default color for unselected arrows */
+    transition: color 0.3s ease;  /* Smooth color change */
+}
+
+/* Active (selected) arrow color */
+th .sort-icon.active {
+    color: red;  /* Make the selected arrow red */
+}
+
+
+
+
 /* Input Tab: Container for buttons */
 #Input .button-container {
     display: flex;
@@ -388,7 +405,7 @@ th.sorted-desc .sort-icon {
     margin-top: 10px; /* Adjust space above buttons */
     margin-bottom: 10px; /* Space below buttons */
 }
-
+ 
 /* Input Tab: Upload Files button styling */
 #Input .custom-file-upload {
     padding: 10px 20px; /* Padding for consistent button sizing */
