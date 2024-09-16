@@ -106,6 +106,16 @@ function fetchQueueStatus() {
     });
 }
 
+// Function to show or hide manual processing based on queue mode
+function toggleManualProcessingVisibility(queueMode) {
+    const manualProcessingSection = document.getElementById('manual-processing-container');
+    
+    if (queueMode === 'Manual') {
+        manualProcessingSection.style.display = 'block';  // Show the section if mode is Manual
+    } else {
+        manualProcessingSection.style.display = 'none';  // Hide the section for other modes
+    }
+}
 
 // Function to update button states based on selected queue mode
 function updateQueueModeUI(queueMode) {
@@ -140,6 +150,9 @@ function updateQueueModeUI(queueMode) {
             document.getElementById('autoapi-btn').style.backgroundColor = '#ccc';
             document.getElementById('autoapi-btn').style.opacity = "1.0";
             document.getElementById('autoapi-btn').style.color = '#333'; // Grey text for disabled auto-api
+            
+            // IMPORTANT: Ensure manual mode is also turned Off when Queue Mode is Off
+            updateManualMode('Off');
             break;
 
         case 'Manual':
@@ -182,6 +195,9 @@ function updateQueueModeUI(queueMode) {
             document.getElementById('autoapi-btn').style.opacity = "0.8";
             document.getElementById('autoapi-btn').style.color = '#fff'; // Grey text for disabled auto-api
             document.getElementById('autoapi-btn').disabled = true;
+
+            // IMPORTANT: Ensure manual mode is also turned Off when Queue Mode is Off
+            updateManualMode('Off');
             break;
 
         case 'Auto-API':
@@ -203,8 +219,14 @@ function updateQueueModeUI(queueMode) {
             document.getElementById('auto-btn').style.opacity = "0.8";
             document.getElementById('auto-btn').style.color = '#fff'; // Grey text for disabled auto
             document.getElementById('auto-btn').disabled = true;
+
+            // IMPORTANT: Ensure manual mode is also turned Off when Queue Mode is Off
+            updateManualMode('Off');
             break;
     }
+    	
+    // Toggle the visibility of the manual processing section
+    toggleManualProcessingVisibility(queueMode);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
