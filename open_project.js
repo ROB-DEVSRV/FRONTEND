@@ -85,7 +85,7 @@ function saveQueueMode(queueMode) {
 function fetchQueueStatus() {
     const projectId = new URLSearchParams(window.location.search).get('project_id');
 
-    fetch(`https://opsensemble.com:5000/projects/project_level/queue_pv?project_id=${projectId}`, {
+    fetch(`https://opsensemble.com:5000/projects/project_level/overview?project_id=${projectId}`, {
         method: 'GET',
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
@@ -93,9 +93,12 @@ function fetchQueueStatus() {
     })
     .then(response => response.json())
     .then(data => {
-        if (data.status === 'success') {
-            // Update the buttons UI based on the queue mode
-            updateQueueModeUI(data.queue_mode);
+        if (data.status === 'success' && data.project_data.settings) {
+            const queueMode = data.project_data.settings.queue_mode || 'Off';  // Default to 'Off' if not found
+            console.log("Queue mode fetched: ", queueMode);  // Log the queue mode
+            updateQueueModeUI(queueMode);  // Update UI based on the mode
+        } else {
+            console.error('Error fetching queue mode:', data.message);
         }
     })
     .catch(error => {
@@ -103,8 +106,11 @@ function fetchQueueStatus() {
     });
 }
 
+
 // Function to update button states based on selected queue mode
 function updateQueueModeUI(queueMode) {
+    console.log("Updating UI with queue mode: ", queueMode);  // Log queueMode for debugging
+
     const buttons = document.querySelectorAll('.queue-mode-btn');
     
     // Reset all buttons to the default state (background color, opacity, text color)
@@ -118,6 +124,7 @@ function updateQueueModeUI(queueMode) {
     // Apply the logic from the truth table
     switch (queueMode) {
         case 'Off':
+            console.log("Setting mode to Off");
             document.getElementById('off-btn').classList.add('active');
             document.getElementById('off-btn').style.backgroundColor = '#4caf50';
             document.getElementById('off-btn').style.opacity = "1.0";
@@ -136,6 +143,7 @@ function updateQueueModeUI(queueMode) {
             break;
 
         case 'Manual':
+            console.log("Setting mode to Manual");
             document.getElementById('manual-btn').classList.add('active');
             document.getElementById('manual-btn').style.backgroundColor = '#4caf50';  // Green when active
             document.getElementById('manual-btn').style.opacity = "1.0";
@@ -156,6 +164,7 @@ function updateQueueModeUI(queueMode) {
             break;
 
         case 'Auto':
+            console.log("Setting mode to Auto");
             document.getElementById('auto-btn').classList.add('active');
             document.getElementById('auto-btn').style.backgroundColor = '#4caf50';  // Green when active
             document.getElementById('auto-btn').style.opacity = "1.0";
@@ -176,6 +185,7 @@ function updateQueueModeUI(queueMode) {
             break;
 
         case 'Auto-API':
+            console.log("Setting mode to Auto-API");
             document.getElementById('autoapi-btn').classList.add('active');
             document.getElementById('autoapi-btn').style.backgroundColor = '#4caf50';  // Green when active
             document.getElementById('autoapi-btn').style.opacity = "1.0";
@@ -197,8 +207,9 @@ function updateQueueModeUI(queueMode) {
     }
 }
 
-// Fetch the initial queue mode when the page loads
-fetchQueueStatus();
+document.addEventListener('DOMContentLoaded', () => {
+    fetchQueueStatus();  // Fetch the current queue mode and set the buttons
+});
 
 
 
@@ -561,8 +572,8 @@ function sortTable(n) {
     }
 }
 
+// Fetch the project JSON and ensure queue_mode and manual_mode are separate
 function fetchProjectJSON() {
-    // Get the projectId dynamically from the URL or another source
     const urlParams = new URLSearchParams(window.location.search);
     const projectId = urlParams.get('project_id');  // Fetch the project_id from the URL
 
@@ -586,7 +597,15 @@ function fetchProjectJSON() {
     .then(data => {
         if (data.status === 'success') {
             const jsonString = JSON.stringify(data.project_data, null, 2);  // Format JSON with indentation
-            document.getElementById('project-json').textContent = jsonString;  // Display JSON
+            document.getElementById('project-json').textContent = jsonString;  // Display JSON in the element
+            
+            // Now handle queue_mode and manual_mode separately
+            const queueMode = data.project_data.settings?.queue_mode || 'Off';  // Queue mode from Overview tab
+            const manualMode = data.project_data.settings?.manual_mode || 'Off';  // Manual mode from Input tab
+
+            console.log(`Queue Mode: ${queueMode}`);
+            console.log(`Manual Mode: ${manualMode}`);
+
         } else {
             document.getElementById('project-json').textContent = "Error: " + data.message;
         }
@@ -595,6 +614,7 @@ function fetchProjectJSON() {
         document.getElementById('project-json').textContent = "Error fetching project JSON: " + error.message;
     });
 }
+
 
 // Auto-refresh the Project JSON every 0.5 seconds
 setInterval(fetchProjectJSON, 500);  // Refresh JSON section every 500ms
@@ -609,25 +629,6 @@ function startPollingQueueStatus() {
     setInterval(fetchQueueStatus, POLLING_INTERVAL);
 }
 
-function fetchQueueStatus() {
-    const projectId = new URLSearchParams(window.location.search).get('project_id');
-
-    fetch(`https://opsensemble.com:5000/projects/project_level/queue_pv?project_id=${projectId}`, {
-        method: 'GET',
-        headers: {
-            'Authorization': 'Bearer ' + localStorage.getItem('token')
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === 'success') {
-            updateQueueModeUI(data.queue_mode);
-        }
-    })
-    .catch(error => {
-        console.error('Error fetching queue status:', error);
-    });
-}
 
 // Function to handle Input tab buttons
 document.querySelectorAll('#Input .input-mode-btn').forEach(button => {
@@ -638,17 +639,47 @@ document.querySelectorAll('#Input .input-mode-btn').forEach(button => {
         // Add active class to the clicked button
         button.classList.add('active');
 
-        // Get the selected mode (either 'Off' or 'Process Files')
-        const selectedMode = button.textContent.trim();
-        
-        // Update the Input tab UI based on the selected mode
+        // Get the selected mode (either 'Off' or 'Processing')
+        const selectedMode = button.textContent.trim() === 'Off' ? 'Off' : 'Processing';
+
+        // Update the UI immediately to reflect the selected mode
         updateInputModeUI(selectedMode);
+
+        // Update the manual_mode in the project settings
+        updateManualMode(selectedMode);
     });
 });
 
+// Function to update the manual_mode in the project JSON (without affecting queue_mode)
+function updateManualMode(manualMode) {
+    const projectId = new URLSearchParams(window.location.search).get('project_id'); // Fetch the project_id from URL
+
+    fetch(`https://opsensemble.com:5000/projects/project_level/queue_pv?project_id=${projectId}`, {
+        method: 'POST',
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token'),  // Use JWT for authentication
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            project_id: projectId,
+            manual_mode: manualMode  // Send the updated manual_mode
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            console.log(`Manual Mode updated to: ${manualMode}`);
+        } else {
+            console.error('Error updating manual mode:', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error updating manual mode:', error);
+    });
+}
+
 // Function to update the UI for Input tab buttons
 function updateInputModeUI(inputMode) {
-    // Get the buttons in the Input tab
     const offButton = document.querySelector('#Input .stop-processing-files-btn');
     const processFilesButton = document.querySelector('#Input .process-files-btn');
 
@@ -668,7 +699,7 @@ function updateInputModeUI(inputMode) {
 
         processFilesButton.style.backgroundColor = '#ccc'; // Grey for inactive Process Files
         processFilesButton.style.color = '#333'; // Grey text for inactive Process Files
-    } else if (inputMode === 'Process Files') {
+    } else if (inputMode === 'Processing') {
         // On state (Red Off, Green Process Files)
         processFilesButton.classList.add('active');
         processFilesButton.style.backgroundColor = '#4caf50'; // Green for active 'Process Files'
@@ -679,3 +710,34 @@ function updateInputModeUI(inputMode) {
         offButton.style.color = '#fff'; // White text for Off
     }
 }
+
+// Function to fetch the current manual_mode from the JSON and update the UI accordingly
+function fetchManualModeAndSetUI() {
+    const projectId = new URLSearchParams(window.location.search).get('project_id'); // Fetch project_id from URL
+
+    fetch(`https://opsensemble.com:5000/projects/project_level/overview?project_id=${projectId}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token'),  // Use JWT for authentication
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success' && data.project_data.settings) {
+            const manualMode = data.project_data.settings.manual_mode || 'Off';  // Default to 'Off' if not found
+
+            // Update UI based on the manual_mode value
+            updateInputModeUI(manualMode);
+        } else {
+            console.error('Error fetching project settings:', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching manual_mode:', error);
+    });
+}
+
+// Call the fetch function when the page loads or the Input tab is opened
+document.addEventListener('DOMContentLoaded', () => {
+    fetchManualModeAndSetUI();  // Fetch the manual_mode and set the UI when the page loads
+});
